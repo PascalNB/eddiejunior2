@@ -1,0 +1,34 @@
+package com.pascalnb.eddie.components.feedback;
+
+import com.pascalnb.eddie.EmbedUtil;
+import com.pascalnb.eddie.exceptions.CommandException;
+import com.pascalnb.eddie.models.EddieButton;
+import net.dv8tion.jda.api.components.buttons.Button;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+
+public class FeedbackNextButton extends EddieButton<FeedbackComponent> {
+
+    public FeedbackNextButton(FeedbackComponent component) {
+        super(component, "feedback-next", "Get next song");
+    }
+
+    @Override
+    public Button getButton() {
+        return Button.primary(getId(), getLabel()).withEmoji(Emoji.fromUnicode("🎵"));
+    }
+
+    @Override
+    public void handle(ButtonInteractionEvent event) {
+        event.deferEdit().queue(hook -> {
+            try {
+                getComponent().handleNextSubmission(event.getMessage(), hook);
+            } catch (CommandException e) {
+                hook.setEphemeral(true).sendMessageEmbeds(
+                    EmbedUtil.error(e).build()
+                ).queue();
+            }
+        });
+    }
+
+}

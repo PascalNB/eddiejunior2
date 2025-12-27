@@ -1,0 +1,82 @@
+package com.pascalnb.eddie.components.setting;
+
+import com.pascalnb.eddie.Eddie;
+import com.pascalnb.eddie.GuildManager;
+import com.pascalnb.eddie.models.EddieComponent;
+import com.pascalnb.eddie.database.ComponentDatabaseManager;
+import com.pascalnb.eddie.exceptions.CommandException;
+import com.pascalnb.eddie.models.RootEddieCommand;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+
+import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Function;
+
+public class VariableComponent<T> extends EddieComponent {
+
+    private final Variable<T> variable;
+    private final OptionData optionData;
+    private final Function<OptionMapping, T> mapper;
+
+    public VariableComponent(Eddie eddie, GuildManager gm, ComponentDatabaseManager db,
+        String name, OptionData optionData, Function<OptionMapping, T> mapper, Function<T, String> pretty,
+        Function<T, String> serializer, Function<String, T> deserializer) {
+        this(eddie, gm, db, name, optionData, mapper, pretty, serializer, deserializer, null);
+    }
+
+    public VariableComponent(Eddie eddie, GuildManager gm, ComponentDatabaseManager db,
+        String name, OptionData optionData, Function<OptionMapping, T> mapper, Function<T, String> pretty,
+        Function<T, String> serializer, Function<String, T> deserializer, T defaultValue) {
+        super(eddie, gm, db);
+        this.variable = new Variable<>(db, name, pretty, serializer, deserializer, defaultValue);
+        this.optionData = optionData.setRequired(true);
+        this.mapper = mapper;
+
+        addCommand(
+            new RootEddieCommand<>(this, name, "Set " + optionData.getName(), List.of(
+                new VariableSetCommand<>(VariableComponent.this),
+                new VariableRemoveCommand<>(VariableComponent.this),
+                new VariableViewCommand<>(VariableComponent.this)
+            ))
+        );
+    }
+
+    public String getPrettyValue() {
+        return variable.getPrettyValue();
+    }
+
+    public String getName() {
+        return variable.getName();
+    }
+
+    public OptionData getOptionData() {
+        return optionData;
+    }
+
+    public Function<OptionMapping, T> getMapper() {
+        return mapper;
+    }
+
+    public T getValue() {
+        return variable.getValue();
+    }
+
+    public void setValue(T value) throws CommandException {
+        checkPreconditions(value);
+        variable.setValue(value);
+    }
+
+    @SuppressWarnings({"RedundantThrows", "unused"})
+    public void checkPreconditions(T t) throws CommandException {
+    }
+
+    public void apply(Consumer<T> consumer) {
+        variable.apply(consumer);
+    }
+
+    public boolean hasValue() {
+        return variable.hasValue();
+    }
+
+}
