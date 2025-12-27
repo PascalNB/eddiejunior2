@@ -23,6 +23,7 @@ public class VariableRemoveCommand<T> extends EddieCommand<VariableComponent<T>>
     public void handle(SlashCommandInteraction event) {
         try {
             getComponent().setValue(null);
+            getComponent().getLogger().info(event.getUser(), "Removed `%s`", getComponent().getName());
             event.replyEmbeds(
                 EmbedUtil.ok(
                     "`%s` removed.",

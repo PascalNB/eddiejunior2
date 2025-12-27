@@ -49,6 +49,7 @@ public class FeedbackSubmitModal extends EddieModal<FeedbackComponent> {
         event.deferReply(true).queue(hook -> {
             try {
                 getComponent().handleSubmission(event.getMember(), url);
+                getComponent().getLogger().info(event.getUser(), "Submitted song <%s>.", url);
                 hook.sendMessageEmbeds(
                     EmbedUtil.ok("Song submitted successfully!").build()
                 ).queue();

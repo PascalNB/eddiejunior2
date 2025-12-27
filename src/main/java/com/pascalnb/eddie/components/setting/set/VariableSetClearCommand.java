@@ -26,6 +26,7 @@ public class VariableSetClearCommand<T> extends EddieCommand<VariableSetComponen
             ).queue();
         } else {
             getComponent().clear();
+            getComponent().getLogger().info(event.getUser(), "Cleared `%s`", getComponent().getName());
             event.replyEmbeds(
                 EmbedUtil.ok("`%s` cleared", getComponent().getName()).build()
             ).queue();

@@ -30,6 +30,10 @@ public class VariableSetAddCommand<T> extends EddieCommand<VariableSetComponent<
             OptionMapping optionMapping = Objects.requireNonNull(event.getOption(optionName));
             T t = getComponent().getMapper().apply(optionMapping);
             getComponent().addValue(t);
+            getComponent().getLogger().info(event.getUser(),"Added %s to `%s`.",
+                getComponent().getPrettyValue(t),
+                getComponent().getName()
+            );
             event.replyEmbeds(
                 EmbedUtil.ok(
                     "Added %s to `%s`",

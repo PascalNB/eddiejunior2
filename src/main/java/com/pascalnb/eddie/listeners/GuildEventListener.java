@@ -1,5 +1,6 @@
 package com.pascalnb.eddie.listeners;
 
+import com.pascalnb.eddie.GuildManager;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.guild.GuildReadyEvent;
@@ -8,32 +9,23 @@ import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.function.Consumer;
+import java.util.function.Function;
 
 public class GuildEventListener implements EventListener {
 
-    private final Collection<Consumer<GuildReadyEvent>> guildReadyListeners = new CopyOnWriteArrayList<>();
-    private final Map<Long, Collection<EventListener>> eventListeners = new ConcurrentHashMap<>();
+    private final Function<GuildReadyEvent, GuildManager> guildManagerProvider;
+    private final Map<Long, GuildManager> guildManagers = new ConcurrentHashMap<>();
 
-    public void addGuildReadyListener(Consumer<GuildReadyEvent> listener) {
-        this.guildReadyListeners.add(listener);
-    }
-
-    public void addEventListener(Guild guild, EventListener listener) {
-        this.eventListeners.computeIfAbsent(
-                guild.getIdLong(),
-                k -> new CopyOnWriteArrayList<>()
-            )
-            .add(listener);
+    public GuildEventListener(Function<GuildReadyEvent, GuildManager> guildManagerProvider) {
+        this.guildManagerProvider = guildManagerProvider;
     }
 
     public void onEvent(@NotNull GenericEvent event) {
         if (event instanceof GuildReadyEvent guildReadyEvent) {
-            this.guildReadyListeners.forEach(listener -> listener.accept(guildReadyEvent));
+            GuildManager guildManager = guildManagerProvider.apply(guildReadyEvent);
+            this.guildManagers.put(guildReadyEvent.getGuild().getIdLong(), guildManager);
             return;
         }
 
@@ -44,12 +36,17 @@ public class GuildEventListener implements EventListener {
                 return;
             }
 
-            Collection<EventListener> listeners = eventListeners.get(guild.getIdLong());
-            if (listeners == null) {
+            GuildManager guildManager = guildManagers.get(guild.getIdLong());
+            if (guildManager == null) {
                 return;
             }
 
-            listeners.forEach(listener -> listener.onEvent(event));
+            try {
+                guildManager.getListeners().forEach(listener -> listener.onEvent(event));
+            } catch (Exception e) {
+                guildManager.error(e);
+            }
+
         } catch (NoSuchMethodException ignore) {
         } catch (InvocationTargetException | IllegalAccessException e) {
             e.printStackTrace();

@@ -27,6 +27,7 @@ public class VariableSetCommand<T> extends EddieCommand<VariableComponent<T>> {
             OptionMapping mapping = Objects.requireNonNull(event.getOption(getComponent().getOptionData().getName()));
             T value = getComponent().getMapper().apply(mapping);
             getComponent().setValue(value);
+            getComponent().getLogger().info(event.getUser(),"Set `%s` to %s.", getComponent().getName(), value);
             event.replyEmbeds(
                 EmbedUtil.ok("`%s` set to %s.", getComponent().getName(), value).build()
             ).queue();

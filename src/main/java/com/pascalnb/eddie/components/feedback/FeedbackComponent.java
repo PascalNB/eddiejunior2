@@ -7,7 +7,6 @@ import com.pascalnb.eddie.components.setting.RoleVariableComponent;
 import com.pascalnb.eddie.components.setting.VariableComponent;
 import com.pascalnb.eddie.components.setting.TextChannelVariableComponent;
 import com.pascalnb.eddie.components.setting.set.VariableSetComponent;
-import com.pascalnb.eddie.database.ComponentDatabaseManager;
 import com.pascalnb.eddie.exceptions.CommandException;
 import com.pascalnb.eddie.models.*;
 import net.dv8tion.jda.api.Permission;
@@ -41,8 +40,8 @@ public class FeedbackComponent extends EddieComponent implements RunnableCompone
     private final FeedbackStopButton stopButton = new FeedbackStopButton(this);
     private final FeedbackStartMenu startMenu = new FeedbackStartMenu(this);
 
-    public FeedbackComponent(Eddie eddie, GuildManager gm, ComponentDatabaseManager db) {
-        super(eddie, gm, db);
+    public FeedbackComponent(ComponentConfig config) {
+        super(config);
 
         this.blacklist = createComponent(VariableSetComponent.factory(
             "blacklist",
@@ -50,10 +49,10 @@ public class FeedbackComponent extends EddieComponent implements RunnableCompone
             OptionMapping::getAsUser,
             User::getAsMention,
             ISnowflake::getId,
-            (id) -> eddie.getJDA().retrieveUserById(id).onErrorMap(e -> null).complete()
+            (id) -> getGuild().getJDA().retrieveUserById(id).onErrorMap(e -> null).complete()
         ));
 
-        this.websites = new VariableSetComponent<>(eddie, gm, db, "websites",
+        this.websites = new VariableSetComponent<>(config, "websites",
             new OptionData(OptionType.STRING, "website", "website hostname/domain"),
             OptionMapping::getAsString, s -> "`" + s + "`",
             Function.identity(), Function.identity()

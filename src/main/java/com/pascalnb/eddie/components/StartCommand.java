@@ -22,6 +22,7 @@ public class StartCommand<T extends EddieComponent & RunnableComponent> extends 
     @Override
     public void handle(SlashCommandInteraction event) {
         getComponent().start();
+        getComponent().getLogger().info(event.getUser(), "Started `%s`", getComponent().getRunnableTitle());
         event.replyEmbeds(EmbedUtil.ok("%s started", getComponent().getRunnableTitle()).build()).queue();
     }
 

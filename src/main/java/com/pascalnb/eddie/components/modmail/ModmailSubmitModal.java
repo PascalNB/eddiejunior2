@@ -71,14 +71,17 @@ public class ModmailSubmitModal extends EddieModal<ModmailComponent> {
             RestAction<ThreadChannel> createAction = getComponent().createTicket(
                 event.getMember(), title, message, attachments);
             event.deferReply(true).queue(hook -> createAction.queue(thread ->
-                hook.sendMessageComponents(
-                    Container.of(
-                        Section.of(
-                            Button.link(thread.getJumpUrl(), "Go to ticket"),
-                            TextDisplay.of("✅ Ticket created")
+                {
+                    getComponent().getLogger().info(event.getUser(), "Created ticket %s", thread.getAsMention());
+                    hook.sendMessageComponents(
+                        Container.of(
+                            Section.of(
+                                Button.link(thread.getJumpUrl(), "Go to ticket"),
+                                TextDisplay.of("✅ Ticket created")
+                            )
                         )
-                    )
-                ).useComponentsV2().queue()
+                    ).useComponentsV2().queue();
+                }
             ));
         } catch (CommandException e) {
             event.replyEmbeds(EmbedUtil.error(e).build()).setEphemeral(true).queue();

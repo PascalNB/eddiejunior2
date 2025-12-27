@@ -1,11 +1,7 @@
 package com.pascalnb.eddie.models;
 
-import com.pascalnb.eddie.Eddie;
-import com.pascalnb.eddie.GuildManager;
-import com.pascalnb.eddie.database.ComponentDatabaseManager;
+import java.util.function.Function;
 
-public interface EddieComponentFactory<T extends EddieComponent> {
-
-    T createComponent(Eddie eddie, GuildManager guildManager, ComponentDatabaseManager db);
+public interface EddieComponentFactory<T extends EddieComponent> extends Function<ComponentConfig, T> {
 
 }

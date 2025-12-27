@@ -30,6 +30,7 @@ public class FeedbackResetCommand extends EddieCommand<FeedbackComponent> {
         if (userOption == null) {
             try {
                 getComponent().resetSession();
+                getComponent().getLogger().info(event.getUser(), "Reset feedback session");
                 event.replyEmbeds(EmbedUtil.ok("Feedback session reset").build()).queue();
             } catch (CommandException e) {
                 event.replyEmbeds(EmbedUtil.error(e).build()).setEphemeral(true).queue();
@@ -44,6 +45,7 @@ public class FeedbackResetCommand extends EddieCommand<FeedbackComponent> {
                         return;
                     }
                     getComponent().resetSessionMember(userOption.getAsMember());
+                    getComponent().getLogger().info(event.getUser(), "Reset feedback session for %s", member.getAsMention());
                     hook.sendMessageEmbeds(
                         EmbedUtil.ok(
                             "Feedback session reset for %s, they can submit again", member.getAsMention()

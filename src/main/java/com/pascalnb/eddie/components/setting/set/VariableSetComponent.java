@@ -1,9 +1,7 @@
 package com.pascalnb.eddie.components.setting.set;
 
-import com.pascalnb.eddie.Eddie;
-import com.pascalnb.eddie.GuildManager;
+import com.pascalnb.eddie.models.ComponentConfig;
 import com.pascalnb.eddie.models.EddieComponent;
-import com.pascalnb.eddie.database.ComponentDatabaseManager;
 import com.pascalnb.eddie.exceptions.CommandException;
 import com.pascalnb.eddie.models.EddieComponentFactory;
 import com.pascalnb.eddie.models.RootEddieCommand;
@@ -23,10 +21,10 @@ public class VariableSetComponent<T> extends EddieComponent {
     private final Function<T, String> serializer;
     private final Function<String, T> deserializer;
 
-    public VariableSetComponent(Eddie eddie, GuildManager gm, ComponentDatabaseManager db,
+    public VariableSetComponent(ComponentConfig config,
         String name, OptionData optionData, Function<OptionMapping, T> mapper, Function<T, String> pretty,
         Function<T, String> serializer, Function<String, T> deserializer) {
-        super(eddie, gm, db);
+        super(config);
         this.name = name;
         this.optionData = optionData.setRequired(true);
         this.mapper = mapper;
@@ -34,7 +32,7 @@ public class VariableSetComponent<T> extends EddieComponent {
         this.serializer = serializer;
         this.deserializer = deserializer;
 
-        List<String> strings = db.getSettings(name);
+        List<String> strings = getDB().getSettings(name);
         this.values = new HashSet<>(strings.stream().map(deserializer).toList());
 
         addCommand(
@@ -109,7 +107,7 @@ public class VariableSetComponent<T> extends EddieComponent {
     public static <T> EddieComponentFactory<VariableSetComponent<T>> factory(String name, OptionData optionData,
         Function<OptionMapping, T> mapper, Function<T, String> pretty,
         Function<T, String> serializer, Function<String, T> deserializer) {
-        return (eddie, gm, db) -> new VariableSetComponent<>(eddie, gm, db, name, optionData, mapper, pretty,
+        return (config) -> new VariableSetComponent<>(config, name, optionData, mapper, pretty,
             serializer, deserializer);
     }
 

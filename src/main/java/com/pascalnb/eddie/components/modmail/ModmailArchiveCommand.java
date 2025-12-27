@@ -22,14 +22,18 @@ public class ModmailArchiveCommand extends EddieCommand<ModmailComponent> {
     @Override
     public void handle(SlashCommandInteraction event) {
         if (!event.getChannel().getType().equals(ChannelType.GUILD_PRIVATE_THREAD)
-        || !event.getChannel().getType().equals(ChannelType.GUILD_PUBLIC_THREAD)) {
+            || !event.getChannel().getType().equals(ChannelType.GUILD_PUBLIC_THREAD)) {
             event.replyEmbeds(EmbedUtil.error("This command can only be used in a modmail thread.").build()).queue();
             return;
         }
 
-        event.replyEmbeds(EmbedUtil.ok("Current thread archived").build()).queue(callback ->
-            event.getChannel().asThreadChannel().getManager().setLocked(true).setArchived(true).queue()
-        );
+        event.replyEmbeds(EmbedUtil.ok("Archiving thread").build())
+            .queue(callback -> {
+                    getComponent().getLogger().info(event.getUser(), "Archived thread %s",
+                        event.getChannel().getAsMention());
+                    event.getChannel().asThreadChannel().getManager().setLocked(true).setArchived(true).queue();
+                }
+            );
     }
 
 }

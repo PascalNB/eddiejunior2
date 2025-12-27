@@ -1,13 +1,12 @@
 package com.pascalnb.eddie.components.setting;
 
-import com.pascalnb.eddie.Eddie;
-import com.pascalnb.eddie.GuildManager;
+import com.pascalnb.eddie.models.ComponentConfig;
 import com.pascalnb.eddie.models.EddieComponent;
-import com.pascalnb.eddie.database.ComponentDatabaseManager;
 import com.pascalnb.eddie.exceptions.CommandException;
 import com.pascalnb.eddie.models.RootEddieCommand;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -19,17 +18,17 @@ public class VariableComponent<T> extends EddieComponent {
     private final OptionData optionData;
     private final Function<OptionMapping, T> mapper;
 
-    public VariableComponent(Eddie eddie, GuildManager gm, ComponentDatabaseManager db,
+    public VariableComponent(ComponentConfig config,
         String name, OptionData optionData, Function<OptionMapping, T> mapper, Function<T, String> pretty,
         Function<T, String> serializer, Function<String, T> deserializer) {
-        this(eddie, gm, db, name, optionData, mapper, pretty, serializer, deserializer, null);
+        this(config, name, optionData, mapper, pretty, serializer, deserializer, null);
     }
 
-    public VariableComponent(Eddie eddie, GuildManager gm, ComponentDatabaseManager db,
+    public VariableComponent(ComponentConfig config,
         String name, OptionData optionData, Function<OptionMapping, T> mapper, Function<T, String> pretty,
         Function<T, String> serializer, Function<String, T> deserializer, T defaultValue) {
-        super(eddie, gm, db);
-        this.variable = new Variable<>(db, name, pretty, serializer, deserializer, defaultValue);
+        super(config);
+        this.variable = new Variable<>(getDB(), name, pretty, serializer, deserializer, defaultValue);
         this.optionData = optionData.setRequired(true);
         this.mapper = mapper;
 
@@ -71,7 +70,7 @@ public class VariableComponent<T> extends EddieComponent {
     public void checkPreconditions(T t) throws CommandException {
     }
 
-    public void apply(Consumer<T> consumer) {
+    public void apply(Consumer<@NotNull T> consumer) {
         variable.apply(consumer);
     }
 

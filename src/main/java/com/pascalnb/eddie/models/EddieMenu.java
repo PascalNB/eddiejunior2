@@ -1,6 +1,5 @@
 package com.pascalnb.eddie.models;
 
-import com.pascalnb.eddie.Eddie;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 
@@ -28,10 +27,6 @@ public abstract class EddieMenu<T extends EddieComponent> {
 
     public T getComponent() {
         return component;
-    }
-
-    public Eddie getEddie() {
-        return component.getEddie();
     }
 
 }

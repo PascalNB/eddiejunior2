@@ -30,10 +30,6 @@ public abstract class EddieCommand<T extends EddieComponent> implements Handler<
         return component;
     }
 
-    public Eddie getEddie() {
-        return component.getEddie();
-    }
-
     public String getName() {
         return name;
     }

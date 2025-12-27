@@ -27,6 +27,7 @@ public class FeedbackStopButton extends EddieButton<FeedbackComponent> {
         }
 
         getComponent().stop();
+        getComponent().getLogger().info(event.getUser(), "Stopped feedback session");
         event.replyEmbeds(EmbedUtil.ok("Feedback session stopped").build()).queue();
     }
 

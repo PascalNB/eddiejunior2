@@ -19,9 +19,11 @@ public class ModmailArchiveButton extends EddieButton<ModmailComponent> {
 
     @Override
     public void handle(ButtonInteractionEvent event) {
-        event.replyEmbeds(EmbedUtil.ok("Current thread archived").build()).queue(callback ->
-            event.getChannel().asThreadChannel().getManager().setLocked(true).setArchived(true).queue()
-        );
+        event.replyEmbeds(EmbedUtil.ok("Archiving current thread").build())
+            .queue(callback -> {
+                getComponent().getLogger().info(event.getUser(), "Archived thread %s", event.getChannel().getAsMention());
+                event.getChannel().asThreadChannel().getManager().setLocked(true).setArchived(true).queue();
+            });
     }
 
 }

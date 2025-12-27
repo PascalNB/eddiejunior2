@@ -3,18 +3,22 @@ package com.pascalnb.eddie;
 import com.pascalnb.dbwrapper.DatabaseAuthenticator;
 import com.pascalnb.dbwrapper.DatabaseException;
 import com.pascalnb.eddie.components.feedback.FeedbackComponent;
+import com.pascalnb.eddie.components.logger.LoggerComponent;
 import com.pascalnb.eddie.components.modmail.ModmailComponent;
 import com.pascalnb.eddie.components.ping.PingComponent;
 import com.pascalnb.eddie.database.DatabaseManager;
 import com.pascalnb.eddie.listeners.GuildEventListener;
+import com.pascalnb.eddie.models.ComponentConfig;
 import com.pascalnb.eddie.models.EddieCommand;
 import com.pascalnb.eddie.models.EddieComponent;
+import com.pascalnb.eddie.models.EddieComponentFactory;
 import io.github.cdimascio.dotenv.Dotenv;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.events.guild.GuildReadyEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.requests.GatewayIntent;
@@ -23,17 +27,12 @@ import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import org.jetbrains.annotations.NotNull;
 
-import javax.security.auth.login.LoginException;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
-@SuppressWarnings("unused")
 public class Eddie {
-
-    private final JDA jda;
-    private final DatabaseManager databaseManager;
-    private final GuildEventListener guildEventListener;
 
     public static void main(String[] args) {
         try {
@@ -42,7 +41,7 @@ public class Eddie {
             try {
                 if (DatabaseManager.createDatabase()) {
                     configureDatabase(config);
-                    DatabaseManager.initialize().await();
+                    DatabaseManager.getInstance().initialize().await();
                 } else {
                     System.err.println("Database could not be created");
                 }
@@ -50,13 +49,17 @@ public class Eddie {
                 throw new RuntimeException(e);
             }
 
-            String token = config.get("TOKEN");
-            Eddie eddie = new Eddie(token);
-            eddie.getJDA().getPresence().setPresence(OnlineStatus.IDLE, Activity.playing("Starting..."));
-            eddie.getJDA().awaitReady();
-            eddie.getJDA().getPresence().setPresence(OnlineStatus.ONLINE, null, false);
 
-        } catch (LoginException | InterruptedException e) {
+            String token = config.get("TOKEN");
+            JDA jda = buildJDA(
+                token,
+                new GuildEventListener(Eddie::registerGuild)
+            );
+            jda.getPresence().setPresence(OnlineStatus.IDLE, Activity.playing("Starting..."));
+            jda.awaitReady();
+            jda.getPresence().setPresence(OnlineStatus.ONLINE, null, false);
+
+        } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
     }
@@ -75,46 +78,27 @@ public class Eddie {
         DatabaseAuthenticator.getInstance().authenticate();
     }
 
-    public JDA getJDA() {
-        return jda;
-    }
-
-    public Eddie(String token) throws LoginException {
-        this.databaseManager = new DatabaseManager();
-        this.guildEventListener = new GuildEventListener();
-        this.guildEventListener.addGuildReadyListener(event -> this.registerGuild(event.getGuild()));
-
-        this.jda = buildJDA(
-            token,
-            this.guildEventListener
-        );
-    }
-
-    private void registerGuild(Guild guild) {
+    private static GuildManager registerGuild(GuildReadyEvent guildReadyEvent) {
+        Guild guild = guildReadyEvent.getGuild();
         GuildManager guildManager = new GuildManager(guild);
         Collection<EddieComponent> components = createComponents(guildManager);
         components.forEach(guildManager::addComponent);
-        guildManager.getListeners()
-            .forEach(listener -> guildEventListener.addEventListener(guild, listener));
         registerCommands(
             guild,
             components.stream()
                 .flatMap(c -> c.getCommands().stream())
                 .toList()
         ).queue();
+        return guildManager;
     }
 
-    private JDA buildJDA(String token, EventListener... listeners) {
+    private static JDA buildJDA(String token, EventListener... listeners) {
         return JDABuilder.createLight(token,
-                GatewayIntent.DIRECT_MESSAGES,
                 GatewayIntent.GUILD_MEMBERS,
-                GatewayIntent.MESSAGE_CONTENT,
-                GatewayIntent.SCHEDULED_EVENTS,
-                GatewayIntent.GUILD_MESSAGES
+                GatewayIntent.SCHEDULED_EVENTS
             )
             .setMemberCachePolicy(MemberCachePolicy.NONE)
             .enableCache(
-                CacheFlag.MEMBER_OVERRIDES,
                 CacheFlag.SCHEDULED_EVENTS,
                 CacheFlag.ROLE_TAGS
             )
@@ -124,15 +108,19 @@ public class Eddie {
             .build();
     }
 
-    private Collection<EddieComponent> createComponents(GuildManager gm) {
-        return List.of(
-            new PingComponent(this, gm, databaseManager.forComponent(gm.getGuild().getId(), "ping")),
-            new FeedbackComponent(this, gm, databaseManager.forComponent(gm.getGuild().getId(), "feedback")),
-            new ModmailComponent(this, gm, databaseManager.forComponent(gm.getGuild().getId(), "modmail"))
-        );
+    private static Collection<EddieComponent> createComponents(GuildManager gm) {
+        return getComponentConstructors().entrySet().stream()
+            .map(entry -> entry.getValue().apply(
+                new ComponentConfig(
+                    gm,
+                    DatabaseManager.getInstance().forComponent(gm.getGuild().getId(), entry.getKey()),
+                    new ComponentLogger(entry.getKey())
+                )
+            ))
+            .toList();
     }
 
-    private RestAction<Void> registerCommands(Guild guild, Collection<EddieCommand<?>> commands) {
+    private static RestAction<Void> registerCommands(Guild guild, Collection<EddieCommand<?>> commands) {
         List<? extends CommandData> commandDataList = commands.stream()
             .map(CommandManager::getCommandData)
             .toList();
@@ -143,6 +131,15 @@ public class Eddie {
             if (!c.edited().isEmpty()) System.out.println("Edited commands: " + c.edited());
             return null;
         });
+    }
+
+    private static Map<String, EddieComponentFactory<EddieComponent>> getComponentConstructors() {
+        return Map.of(
+            "ping", PingComponent::new,
+            "feedback", FeedbackComponent::new,
+            "modmail", ModmailComponent::new,
+            "logger", LoggerComponent::new
+        );
     }
 
 }

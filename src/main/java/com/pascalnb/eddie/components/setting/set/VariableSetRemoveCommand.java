@@ -28,6 +28,10 @@ public class VariableSetRemoveCommand<T> extends EddieCommand<VariableSetCompone
         OptionMapping optionMapping = Objects.requireNonNull(event.getOption(optionName));
         T t = getComponent().getMapper().apply(optionMapping);
         if (getComponent().removeValue(t)) {
+            getComponent().getLogger().info(event.getUser(),"Removed %s from `%s`.",
+                getComponent().getPrettyValue(t),
+                getComponent().getName()
+            );
             event.replyEmbeds(
                 EmbedUtil.ok(
                     "Removed %s from `%s`",

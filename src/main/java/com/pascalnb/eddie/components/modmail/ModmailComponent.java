@@ -1,7 +1,6 @@
 package com.pascalnb.eddie.components.modmail;
 
-import com.pascalnb.eddie.Eddie;
-import com.pascalnb.eddie.GuildManager;
+import com.pascalnb.eddie.models.ComponentConfig;
 import com.pascalnb.eddie.Util;
 import com.pascalnb.eddie.components.StatusCommand;
 import com.pascalnb.eddie.components.StatusComponent;
@@ -10,7 +9,6 @@ import com.pascalnb.eddie.components.setting.TextChannelVariableComponent;
 import com.pascalnb.eddie.components.setting.Variable;
 import com.pascalnb.eddie.components.setting.VariableComponent;
 import com.pascalnb.eddie.components.setting.set.VariableSetComponent;
-import com.pascalnb.eddie.database.ComponentDatabaseManager;
 import com.pascalnb.eddie.exceptions.CommandException;
 import com.pascalnb.eddie.models.EddieComponent;
 import com.pascalnb.eddie.models.RootEddieCommand;
@@ -38,8 +36,8 @@ public class ModmailComponent extends EddieComponent implements StatusComponent 
     private final ModmailSubmitModal submitModal = new ModmailSubmitModal(this);
     private final ModmailArchiveButton archiveButton = new ModmailArchiveButton(this);
 
-    public ModmailComponent(Eddie eddie, GuildManager guildManager, ComponentDatabaseManager db) {
-        super(eddie, guildManager, db);
+    public ModmailComponent(ComponentConfig config) {
+        super(config);
 
         this.channel = createComponent(TextChannelVariableComponent.factory("channel"));
         this.blacklist = createComponent(VariableSetComponent.factory(
@@ -48,9 +46,9 @@ public class ModmailComponent extends EddieComponent implements StatusComponent 
             OptionMapping::getAsUser,
             User::getAsMention,
             ISnowflake::getId,
-            (id) -> eddie.getJDA().retrieveUserById(id).onErrorMap(e -> null).complete()
+            (id) -> getGuild().getJDA().retrieveUserById(id).onErrorMap(e -> null).complete()
         ));
-        this.threadId = new Variable<>(db, "thread_id", String::valueOf, String::valueOf, Integer::valueOf, 0);
+        this.threadId = new Variable<>(getDB(), "thread_id", String::valueOf, String::valueOf, Integer::valueOf, 0);
         this.mention = createComponent(RoleVariableComponent.factory("mention"));
 
         addCommands(

@@ -20,6 +20,7 @@ import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class ModmailMessageModal extends EddieModal<ModmailComponent> {
 
@@ -55,6 +56,7 @@ public class ModmailMessageModal extends EddieModal<ModmailComponent> {
     public void handle(ModalInteractionEvent event) {
         String content = Objects.requireNonNull(event.getValue("message")).getAsString();
         Mentions mentions = Objects.requireNonNull(event.getValue("channel")).getAsMentions();
+        List<TextChannel> channels = mentions.getChannels(TextChannel.class);
 
         MessageCreateData message = new MessageCreateBuilder()
             .useComponentsV2()
@@ -70,12 +72,15 @@ public class ModmailMessageModal extends EddieModal<ModmailComponent> {
 
         event.deferReply(true).queue(hook ->
             RestAction.allOf(
-                mentions.getChannels(TextChannel.class).stream()
+                channels.stream()
                     .map(channel -> channel.sendMessage(message).useComponentsV2())
                     .toList()
-            ).queue(callback ->
-                hook.sendMessageEmbeds(EmbedUtil.ok("Modmail message sent").build()).queue()
-            )
+            ).queue(callback -> {
+                String prettyChannels = channels.stream().map(TextChannel::getAsMention).collect(Collectors.joining(
+                    ", "));
+                getComponent().getLogger().info(event.getUser(), "Sent modmail message to %s", prettyChannels);
+                hook.sendMessageEmbeds(EmbedUtil.ok("Modmail message sent to %s", prettyChannels).build()).queue();
+            })
         );
 
     }

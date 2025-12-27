@@ -1,6 +1,6 @@
 package com.pascalnb.eddie.models;
 
-import com.pascalnb.eddie.Eddie;
+import com.pascalnb.eddie.ComponentLogger;
 import com.pascalnb.eddie.GuildManager;
 import com.pascalnb.eddie.database.ComponentDatabaseManager;
 import net.dv8tion.jda.api.entities.Guild;
@@ -10,17 +10,13 @@ import java.util.Collection;
 
 public abstract class EddieComponent {
 
-    private final Eddie eddie;
-    private final GuildManager guildManager;
-    private final ComponentDatabaseManager db;
+    private final ComponentConfig config;
     private final Collection<EddieCommand<?>> commands = new ArrayList<>();
     private final Collection<EddieButton<?>> buttons = new ArrayList<>();
     private final Collection<EddieModal<?>> modals = new ArrayList<>();
 
-    public EddieComponent(Eddie eddie, GuildManager guildManager, ComponentDatabaseManager db) {
-        this.eddie = eddie;
-        this.guildManager = guildManager;
-        this.db = db;
+    public EddieComponent(ComponentConfig config) {
+        this.config = config;
     }
 
     public final void addCommand(EddieCommand<?> command) {
@@ -59,24 +55,24 @@ public abstract class EddieComponent {
         return modals;
     }
 
-    public Eddie getEddie() {
-        return eddie;
-    }
-
     public Guild getGuild() {
-        return guildManager.getGuild();
+        return config.guildManager().getGuild();
     }
 
     public GuildManager getGuildManager() {
-        return guildManager;
+        return config.guildManager();
     }
 
     public ComponentDatabaseManager getDB() {
-        return db;
+        return config.componentDatabaseManager();
+    }
+
+    public ComponentLogger getLogger() {
+        return config.componentLogger();
     }
 
     public <T extends EddieComponent> T createComponent(EddieComponentFactory<T> factory) {
-        return factory.createComponent(eddie, guildManager, db);
+        return factory.apply(config);
     }
 
 }

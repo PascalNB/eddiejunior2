@@ -8,12 +8,19 @@ import com.pascalnb.dbwrapper.action.Promise;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.CheckReturnValue;
+import javax.xml.crypto.Data;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class DatabaseManager {
+
+    private static final DatabaseManager INSTANCE = new DatabaseManager();
+
+    public static DatabaseManager getInstance() {
+        return INSTANCE;
+    }
 
     private static final Query GET_SETTINGS = new Query(
         "SELECT value FROM setting WHERE guild_id=? AND component_id=? AND name=?;");
@@ -36,7 +43,7 @@ public class DatabaseManager {
     }
 
     @CheckReturnValue
-    public static Promise<Void> initialize() {
+    public Promise<Void> initialize() {
         return DatabaseAction.of("""
                 create table if not exists setting (
                 guild_id integer not null,

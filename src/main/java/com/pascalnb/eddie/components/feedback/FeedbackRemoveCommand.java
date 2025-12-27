@@ -37,10 +37,14 @@ public class FeedbackRemoveCommand extends EddieCommand<FeedbackComponent> {
             try {
                 getComponent().removeSessionSubmission(member, allowResubmit);
                 if (allowResubmit) {
+                    getComponent().getLogger().info(event.getUser(), "Removed submission by %s (resubmission allowed)",
+                        member.getAsMention());
                     hook.sendMessageEmbeds(EmbedUtil.ok(
                         "Submission by %s removed, and they can submit again", member.getAsMention()
                     ).build()).queue();
                 } else {
+                    getComponent().getLogger().info(event.getUser(), "Removed submission by %s (resubmission not allowed)",
+                        member.getAsMention());
                     hook.sendMessageEmbeds(EmbedUtil.ok(
                         "Submission by %s removed", member.getAsMention()
                     ).build()).queue();

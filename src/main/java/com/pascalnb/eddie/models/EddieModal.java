@@ -1,6 +1,5 @@
 package com.pascalnb.eddie.models;
 
-import com.pascalnb.eddie.Eddie;
 import com.pascalnb.eddie.Handler;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.modals.Modal;
@@ -19,10 +18,6 @@ public abstract class EddieModal<T extends EddieComponent> implements Handler<Mo
 
     public T getComponent() {
         return component;
-    }
-
-    public Eddie getEddie() {
-        return component.getEddie();
     }
 
     public String getId() {
