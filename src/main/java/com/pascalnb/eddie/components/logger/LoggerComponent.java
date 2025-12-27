@@ -48,12 +48,15 @@ public class LoggerComponent extends EddieComponent implements EddieLogger {
             if (user == null) {
                 embed.setDescription(message);
             } else {
-                embed.setDescription("%s: %s".formatted(user.getAsMention(), message))
-                    .setAuthor(user.getName(), null, user.getEffectiveAvatarUrl());
+                embed.setDescription("%s: %s".formatted(user.getAsMention(), message));
             }
 
             if (componentId != null) {
-                embed.setFooter(componentId);
+                if (user != null) {
+                    embed.setFooter(componentId + " • " + user.getId(), user.getEffectiveAvatarUrl());
+                } else {
+                    embed.setFooter(componentId);
+                }
             }
 
             textChannel.sendMessageEmbeds(embed.build()).queue();

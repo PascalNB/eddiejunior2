@@ -14,7 +14,7 @@ public class ModmailArchiveButton extends EddieButton<ModmailComponent> {
 
     @Override
     public Button getButton() {
-        return Button.primary(getId(), getLabel()).withEmoji(Emoji.fromUnicode("\uD83D\uDCE5"));
+        return Button.secondary(getId(), getLabel()).withEmoji(Emoji.fromUnicode("\uD83D\uDCE5"));
     }
 
     @Override

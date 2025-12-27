@@ -1,5 +1,6 @@
 package com.pascalnb.eddie.components.modmail;
 
+import com.pascalnb.eddie.components.BlacklistComponent;
 import com.pascalnb.eddie.models.ComponentConfig;
 import com.pascalnb.eddie.Util;
 import com.pascalnb.eddie.components.StatusCommand;
@@ -8,7 +9,6 @@ import com.pascalnb.eddie.components.setting.RoleVariableComponent;
 import com.pascalnb.eddie.components.setting.TextChannelVariableComponent;
 import com.pascalnb.eddie.components.setting.Variable;
 import com.pascalnb.eddie.components.setting.VariableComponent;
-import com.pascalnb.eddie.components.setting.set.VariableSetComponent;
 import com.pascalnb.eddie.exceptions.CommandException;
 import com.pascalnb.eddie.models.EddieComponent;
 import com.pascalnb.eddie.models.RootEddieCommand;
@@ -16,9 +16,6 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.concrete.ThreadChannel;
-import net.dv8tion.jda.api.interactions.commands.OptionMapping;
-import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 
@@ -27,7 +24,7 @@ import java.util.List;
 public class ModmailComponent extends EddieComponent implements StatusComponent {
 
     private final VariableComponent<TextChannel> channel;
-    private final VariableSetComponent<User> blacklist;
+    private final BlacklistComponent blacklist;
     private final Variable<Integer> threadId;
     private final VariableComponent<Role> mention;
 
@@ -40,14 +37,7 @@ public class ModmailComponent extends EddieComponent implements StatusComponent 
         super(config);
 
         this.channel = createComponent(TextChannelVariableComponent.factory("channel"));
-        this.blacklist = createComponent(VariableSetComponent.factory(
-            "blacklist",
-            new OptionData(OptionType.USER, "user", "user"),
-            OptionMapping::getAsUser,
-            User::getAsMention,
-            ISnowflake::getId,
-            (id) -> getGuild().getJDA().retrieveUserById(id).onErrorMap(e -> null).complete()
-        ));
+        this.blacklist = createComponent(BlacklistComponent::new);
         this.threadId = new Variable<>(getDB(), "thread_id", String::valueOf, String::valueOf, Integer::valueOf, 0);
         this.mention = createComponent(RoleVariableComponent.factory("mention"));
 
@@ -87,8 +77,7 @@ public class ModmailComponent extends EddieComponent implements StatusComponent 
     }
 
     public RestAction<ThreadChannel> createTicket(Member member, String title, String message,
-        List<Message.Attachment> attachments)
-    throws CommandException {
+        List<Message.Attachment> attachments) throws CommandException {
         if (!channel.hasValue()) {
             throw new CommandException("Unable to create ticket");
         }

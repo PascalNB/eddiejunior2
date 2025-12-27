@@ -26,7 +26,7 @@ public class FeedbackComponent extends EddieComponent implements RunnableCompone
 
     private final AtomicReference<FeedbackSession> session = new AtomicReference<>(null);
 
-    private final VariableSetComponent<User> blacklist;
+    private final BlacklistComponent blacklist;
     private final VariableSetComponent<String> websites;
     private final VariableComponent<TextChannel> submissionChannel;
     private final VariableComponent<AudioChannel> voiceChannel;
@@ -43,14 +43,7 @@ public class FeedbackComponent extends EddieComponent implements RunnableCompone
     public FeedbackComponent(ComponentConfig config) {
         super(config);
 
-        this.blacklist = createComponent(VariableSetComponent.factory(
-            "blacklist",
-            new OptionData(OptionType.USER, "user", "user"),
-            OptionMapping::getAsUser,
-            User::getAsMention,
-            ISnowflake::getId,
-            (id) -> getGuild().getJDA().retrieveUserById(id).onErrorMap(e -> null).complete()
-        ));
+        this.blacklist = createComponent(BlacklistComponent::new);
 
         this.websites = new VariableSetComponent<>(config, "websites",
             new OptionData(OptionType.STRING, "website", "website hostname/domain"),
@@ -78,7 +71,7 @@ public class FeedbackComponent extends EddieComponent implements RunnableCompone
                         new StartCommand<>(this),
                         new StopCommand<>(this),
                         blacklist.getCommands(),
-                        new FeedbackSendButtonCommand(this),
+                        new FeedbackMessageCommand(this),
                         new FeedbackResetCommand(this),
                         new FeedbackRemoveCommand(this)
                     ),

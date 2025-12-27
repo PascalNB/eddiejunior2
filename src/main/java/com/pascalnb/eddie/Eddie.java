@@ -2,6 +2,7 @@ package com.pascalnb.eddie;
 
 import com.pascalnb.dbwrapper.DatabaseAuthenticator;
 import com.pascalnb.dbwrapper.DatabaseException;
+import com.pascalnb.eddie.components.fanart.FanartComponent;
 import com.pascalnb.eddie.components.feedback.FeedbackComponent;
 import com.pascalnb.eddie.components.logger.LoggerComponent;
 import com.pascalnb.eddie.components.modmail.ModmailComponent;
@@ -138,7 +139,8 @@ public class Eddie {
             "ping", PingComponent::new,
             "feedback", FeedbackComponent::new,
             "modmail", ModmailComponent::new,
-            "logger", LoggerComponent::new
+            "logger", LoggerComponent::new,
+            "fanart", FanartComponent::new
         );
     }
 

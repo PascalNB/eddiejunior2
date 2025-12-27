@@ -6,7 +6,6 @@ import com.pascalnb.eddie.listeners.ModalListener;
 import com.pascalnb.eddie.models.EddieComponent;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.hooks.EventListener;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -33,17 +32,14 @@ public class GuildManager extends ComponentLogger {
         if (component instanceof EddieLogger eddieLogger) {
             // Set logger of previous components
             this.logger = eddieLogger;
-            setLogger(eddieLogger);
+            components.forEach(cc -> cc.getLogger().setLoggerProvider(logger));
+            setLoggerProvider(logger);
         }
         if (this.logger != null) {
             // Set logger of next components
             component.getLogger().setLoggerProvider(this.logger);
         }
         this.components.add(component);
-    }
-
-    private void setLogger(@NotNull EddieLogger logger) {
-        components.forEach(component -> component.getLogger().setLoggerProvider(logger));
     }
 
     public Collection<EddieComponent> getComponents() {

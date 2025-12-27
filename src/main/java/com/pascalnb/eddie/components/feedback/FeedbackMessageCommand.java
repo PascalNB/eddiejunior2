@@ -6,10 +6,10 @@ import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 import java.util.List;
 
-public class FeedbackSendButtonCommand extends EddieCommand<FeedbackComponent> {
+public class FeedbackMessageCommand extends EddieCommand<FeedbackComponent> {
 
-    public FeedbackSendButtonCommand(FeedbackComponent component) {
-        super(component, "send-button", "Send the feedback submit button");
+    public FeedbackMessageCommand(FeedbackComponent component) {
+        super(component, "send-message", "Send the feedback submit button");
     }
 
     @Override
