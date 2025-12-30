@@ -77,7 +77,7 @@ public class FeedbackComponent extends EddieComponent implements RunnableCompone
                     ),
                     Permission.BAN_MEMBERS
                 ),
-                new RootEddieCommand<>(this, "feedback-manage", "Manage feedback",
+                new RootEddieCommand<>(this, "manage-feedback", "Manage feedback",
                     Util.spread(
                         websites.getCommands(),
                         submissionChannel.getCommands(),

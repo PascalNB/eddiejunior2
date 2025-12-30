@@ -19,12 +19,12 @@ import java.util.List;
 public class FanartRejectButton extends EddieButton<FanartComponent> {
 
     public FanartRejectButton(FanartComponent component) {
-        super(component, "fanart-reject", "Reject");
+        super(component, "fanart-reject");
     }
 
     @Override
     public Button getButton() {
-        return Button.danger(getId(), getLabel()).withEmoji(Emoji.fromUnicode("✖️"));
+        return Button.danger(getId(), "Reject").withEmoji(Emoji.fromUnicode("✖️"));
     }
 
     @Override

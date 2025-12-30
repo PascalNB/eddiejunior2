@@ -19,13 +19,13 @@ public class VariableComponent<T> extends EddieComponent {
     private final Function<OptionMapping, T> mapper;
 
     public VariableComponent(ComponentConfig config,
-        String name, OptionData optionData, Function<OptionMapping, T> mapper, Function<T, String> pretty,
+        String name, OptionData optionData, Function<OptionMapping, T> mapper, Function<@NotNull T, String> pretty,
         Function<T, String> serializer, Function<String, T> deserializer) {
         this(config, name, optionData, mapper, pretty, serializer, deserializer, null);
     }
 
     public VariableComponent(ComponentConfig config,
-        String name, OptionData optionData, Function<OptionMapping, T> mapper, Function<T, String> pretty,
+        String name, OptionData optionData, Function<OptionMapping, T> mapper, Function<@NotNull T, String> pretty,
         Function<T, String> serializer, Function<String, T> deserializer, T defaultValue) {
         super(config);
         this.variable = new Variable<>(getDB(), name, pretty, serializer, deserializer, defaultValue);

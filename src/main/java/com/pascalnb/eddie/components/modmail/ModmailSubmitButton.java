@@ -8,12 +8,12 @@ import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 public class ModmailSubmitButton extends EddieButton<ModmailComponent> {
 
     public ModmailSubmitButton(ModmailComponent component) {
-        super(component, "modmail-submit", "New ticket");
+        super(component, "modmail-submit");
     }
 
     @Override
     public Button getButton() {
-        return Button.primary(getId(), getLabel()).withEmoji(Emoji.fromUnicode("➕"));
+        return Button.primary(getId(), "New ticket").withEmoji(Emoji.fromUnicode("➕"));
     }
 
     @Override

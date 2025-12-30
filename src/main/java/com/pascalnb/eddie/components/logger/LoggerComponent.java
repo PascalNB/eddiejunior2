@@ -23,7 +23,7 @@ public class LoggerComponent extends EddieComponent implements EddieLogger {
         this.channel = createComponent(TextChannelVariableComponent.factory("channel"));
 
         addCommand(
-            new RootEddieCommand<>(this, "logger", "Logger",
+            new RootEddieCommand<>(this, "manage-logger", "Logger",
                 Util.spread(
                     channel.getCommands()
                 ),

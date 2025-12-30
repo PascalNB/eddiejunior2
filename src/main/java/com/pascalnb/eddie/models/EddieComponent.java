@@ -1,78 +1,76 @@
 package com.pascalnb.eddie.models;
 
-import com.pascalnb.eddie.ComponentLogger;
-import com.pascalnb.eddie.GuildManager;
-import com.pascalnb.eddie.database.ComponentDatabaseManager;
-import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.hooks.EventListener;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
-public abstract class EddieComponent {
+public abstract class EddieComponent implements IEddieComponent {
 
     private final ComponentConfig config;
     private final Collection<EddieCommand<?>> commands = new ArrayList<>();
     private final Collection<EddieButton<?>> buttons = new ArrayList<>();
     private final Collection<EddieModal<?>> modals = new ArrayList<>();
+    private final Collection<EddieStringSelector<?>> stringSelectors = new ArrayList<>();
+    private final Collection<EventListener> eventListeners = new ArrayList<>();
 
     public EddieComponent(ComponentConfig config) {
         this.config = config;
     }
 
+    @Override
     public final void addCommand(EddieCommand<?> command) {
         this.commands.add(command);
     }
 
-    public final void addCommands(Collection<EddieCommand<?>> commands) {
-        commands.forEach(this::addCommand);
-    }
-
-    public Collection<EddieCommand<?>> getCommands() {
+    @Override
+    public final Collection<EddieCommand<?>> getCommands() {
         return commands;
     }
 
+    @Override
     public final void addButton(EddieButton<?> button) {
         this.buttons.add(button);
     }
 
-    public final void addButtons(Collection<EddieButton<?>> buttons) {
-        buttons.forEach(this::addButton);
-    }
-
-    public Collection<EddieButton<?>> getButtons() {
+    @Override
+    public final Collection<EddieButton<?>> getButtons() {
         return buttons;
     }
 
+    @Override
     public final void addModal(EddieModal<?> modal) {
         this.modals.add(modal);
     }
 
-    public final void addModals(Collection<EddieModal<?>> modals) {
-        modals.forEach(this::addModal);
-    }
-
-    public Collection<EddieModal<?>> getModals() {
+    @Override
+    public final Collection<EddieModal<?>> getModals() {
         return modals;
     }
 
-    public Guild getGuild() {
-        return config.guildManager().getGuild();
+    @Override
+    public final void addStringSelector(EddieStringSelector<?> stringSelector) {
+        this.stringSelectors.add(stringSelector);
     }
 
-    public GuildManager getGuildManager() {
-        return config.guildManager();
+    @Override
+    public Collection<EddieStringSelector<?>> getStringSelectors() {
+        return stringSelectors;
     }
 
-    public ComponentDatabaseManager getDB() {
-        return config.componentDatabaseManager();
+    @Override
+    public final void addEventListener(EventListener listener) {
+        this.eventListeners.add(listener);
     }
 
-    public ComponentLogger getLogger() {
-        return config.componentLogger();
+    @Override
+    public final Collection<EventListener> getEventListeners() {
+        return eventListeners;
     }
 
-    public <T extends EddieComponent> T createComponent(EddieComponentFactory<T> factory) {
-        return factory.apply(config);
+    @Override
+    public ComponentConfig getConfig() {
+        return config;
     }
 
 }

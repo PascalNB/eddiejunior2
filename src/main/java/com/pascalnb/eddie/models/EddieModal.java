@@ -4,7 +4,7 @@ import com.pascalnb.eddie.Handler;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.modals.Modal;
 
-public abstract class EddieModal<T extends EddieComponent> implements Handler<ModalInteractionEvent> {
+public abstract class EddieModal<T extends IEddieComponent> implements Handler<ModalInteractionEvent> {
 
     private final T component;
     private final String id;

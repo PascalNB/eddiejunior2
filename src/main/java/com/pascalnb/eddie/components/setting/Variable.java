@@ -2,6 +2,7 @@ package com.pascalnb.eddie.components.setting;
 
 import com.pascalnb.eddie.database.ComponentDatabaseManager;
 import com.pascalnb.eddie.exceptions.CommandException;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -14,7 +15,7 @@ public class Variable<T> {
     private T value;
     private final ComponentDatabaseManager db;
 
-    public Variable(ComponentDatabaseManager db, String name, Function<T, String> pretty,
+    public Variable(ComponentDatabaseManager db, String name, Function<@NotNull T, String> pretty,
         Function<T, String> serializer, Function<String, T> deserializer, T defaultValue) {
         this.db = db;
         this.name = name;
@@ -25,6 +26,11 @@ public class Variable<T> {
         this.value = valueString != null
             ? deserializer.apply(valueString)
             : defaultValue;
+    }
+
+    public Variable(ComponentDatabaseManager db, String name, Function<@NotNull T, String> pretty,
+        Function<T, String> serializer, Function<String, T> deserializer) {
+        this(db, name, pretty, serializer, deserializer, null);
     }
 
     public boolean hasValue() {

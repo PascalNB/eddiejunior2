@@ -7,36 +7,29 @@ import com.pascalnb.eddie.models.EddieComponentFactory;
 import com.pascalnb.eddie.models.RootEddieCommand;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.function.Function;
 
 public class VariableSetComponent<T> extends EddieComponent {
 
-    private final String name;
+    private final VariableSet<T> set;
     private final OptionData optionData;
     private final Function<OptionMapping, T> mapper;
-    private final Function<T, String> pretty;
-    private final Set<T> values;
-    private final Function<T, String> serializer;
-    private final Function<String, T> deserializer;
 
     public VariableSetComponent(ComponentConfig config,
-        String name, OptionData optionData, Function<OptionMapping, T> mapper, Function<T, String> pretty,
+        String name, OptionData optionData, Function<OptionMapping, T> mapper, Function<@NotNull T, String> pretty,
         Function<T, String> serializer, Function<String, T> deserializer) {
         super(config);
-        this.name = name;
+
+        this.set = new VariableSet<>(getDB(), name, pretty, serializer, deserializer);
+
         this.optionData = optionData.setRequired(true);
         this.mapper = mapper;
-        this.pretty = pretty;
-        this.serializer = serializer;
-        this.deserializer = deserializer;
-
-        List<String> strings = getDB().getSettings(name);
-        this.values = new HashSet<>(strings.stream().map(deserializer).toList());
 
         addCommand(
-            new RootEddieCommand<>(this, this.name, "Set " + this.optionData.getName(), List.of(
+            new RootEddieCommand<>(this, name, "Set " + this.optionData.getName(), List.of(
                 new VariableSetAddCommand<>(VariableSetComponent.this),
                 new VariableSetRemoveCommand<>(VariableSetComponent.this),
                 new VariableSetShowCommand<>(VariableSetComponent.this),
@@ -46,29 +39,23 @@ public class VariableSetComponent<T> extends EddieComponent {
     }
 
     public boolean isEmpty() {
-        return values.isEmpty();
+        return set.isEmpty();
     }
 
     public boolean contains(T t) {
-        return values.contains(t);
+        return set.contains(t);
     }
 
     public String getPrettyValue(T t) {
-        return pretty.apply(t);
+        return set.getPrettyValue(t);
     }
 
     public String getPrettyValues() {
-        if (values.isEmpty()) {
-            return "Not set";
-        }
-        return values.stream()
-            .map(this::getPrettyValue)
-            .reduce((a, b) -> a + ", " + b)
-            .orElse("");
+        return set.getPrettyValues();
     }
 
     public String getName() {
-        return name;
+        return set.getName();
     }
 
     public OptionData getOptionData() {
@@ -80,25 +67,20 @@ public class VariableSetComponent<T> extends EddieComponent {
     }
 
     public Collection<T> getValues() {
-        return values;
+        return set.getValues();
     }
 
     public void addValue(T value) throws CommandException {
         checkPreconditions(value);
-        this.values.add(value);
-        getDB().addSetting(name, serializer.apply(value)).stage();
+        this.set.addValue(value);
     }
 
     public boolean removeValue(T value) {
-        boolean removed = this.values.remove(value);
-        if (removed) {
-            getDB().removeSettingValue(name, serializer.apply(value)).stage();
-        }
-        return removed;
+        return this.set.removeValue(value);
     }
 
     public void clear() {
-        this.values.clear();
+        this.set.clear();
     }
 
     public void checkPreconditions(T t) throws CommandException {

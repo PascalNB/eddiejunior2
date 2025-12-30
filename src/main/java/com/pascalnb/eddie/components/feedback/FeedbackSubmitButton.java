@@ -11,12 +11,12 @@ import net.dv8tion.jda.api.modals.Modal;
 public class FeedbackSubmitButton extends EddieButton<FeedbackComponent> {
 
     public FeedbackSubmitButton(FeedbackComponent component) {
-        super(component, "feedback-submit", "Submit song");
+        super(component, "feedback-submit");
     }
 
     @Override
     public Button getButton() {
-        return Button.success(getId(), getLabel()).withEmoji(Emoji.fromUnicode("🎵"));
+        return Button.success(getId(),  "Submit song").withEmoji(Emoji.fromUnicode("🎵"));
     }
 
     @Override

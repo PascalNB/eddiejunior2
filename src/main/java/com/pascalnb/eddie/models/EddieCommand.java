@@ -1,6 +1,5 @@
 package com.pascalnb.eddie.models;
 
-import com.pascalnb.eddie.Eddie;
 import com.pascalnb.eddie.Handler;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.interactions.commands.SlashCommandInteraction;
@@ -10,7 +9,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public abstract class EddieCommand<T extends EddieComponent> implements Handler<SlashCommandInteraction> {
+public abstract class EddieCommand<T extends IEddieComponent> implements Handler<SlashCommandInteraction> {
 
     private final T component;
     private final String name;

@@ -8,12 +8,12 @@ import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 public class FanartSubmitButton extends EddieButton<FanartComponent> {
 
     public FanartSubmitButton(FanartComponent component) {
-        super(component, "fanart-submit", "Submit art");
+        super(component, "fanart-submit");
     }
 
     @Override
     public Button getButton() {
-        return Button.primary(getId(), getLabel()).withEmoji(Emoji.fromUnicode("➕"));
+        return Button.primary(getId(), "Submit art").withEmoji(Emoji.fromUnicode("➕"));
     }
 
     @Override

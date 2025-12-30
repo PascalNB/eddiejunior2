@@ -51,7 +51,7 @@ public class ModmailComponent extends EddieComponent implements StatusComponent 
                     ),
                     Permission.BAN_MEMBERS
                 ),
-                new RootEddieCommand<>(this, "modmail-manage", "Manage modmail",
+                new RootEddieCommand<>(this, "manage-modmail", "Manage modmail",
                     Util.spread(
                         channel.getCommands(),
                         mention.getCommands(),

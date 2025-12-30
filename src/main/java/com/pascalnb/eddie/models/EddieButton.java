@@ -4,16 +4,14 @@ import com.pascalnb.eddie.Handler;
 import net.dv8tion.jda.api.components.buttons.Button;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 
-public abstract class EddieButton<T extends EddieComponent> implements Handler<ButtonInteractionEvent> {
+public abstract class EddieButton<T extends IEddieComponent> implements Handler<ButtonInteractionEvent> {
 
     private final T component;
     private final String id;
-    private final String label;
 
-    public EddieButton(T component, String id, String label) {
+    public EddieButton(T component, String id) {
         this.component = component;
         this.id = id;
-        this.label = label;
     }
 
     public abstract Button getButton();
@@ -23,9 +21,6 @@ public abstract class EddieButton<T extends EddieComponent> implements Handler<B
     }
     public String getId() {
         return id;
-    }
-    public String getLabel() {
-        return label;
     }
 
 }

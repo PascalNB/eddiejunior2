@@ -10,12 +10,12 @@ import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 public class FeedbackNextButton extends EddieButton<FeedbackComponent> {
 
     public FeedbackNextButton(FeedbackComponent component) {
-        super(component, "feedback-next", "Get next song");
+        super(component, "feedback-next");
     }
 
     @Override
     public Button getButton() {
-        return Button.primary(getId(), getLabel()).withEmoji(Emoji.fromUnicode("🎵"));
+        return Button.primary(getId(), "Get next song").withEmoji(Emoji.fromUnicode("🎵"));
     }
 
     @Override

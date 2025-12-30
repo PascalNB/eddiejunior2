@@ -9,12 +9,12 @@ import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 public class ModmailArchiveButton extends EddieButton<ModmailComponent> {
 
     public ModmailArchiveButton(ModmailComponent component) {
-        super(component, "modmail-archive", "Archive ticket");
+        super(component, "modmail-archive");
     }
 
     @Override
     public Button getButton() {
-        return Button.secondary(getId(), getLabel()).withEmoji(Emoji.fromUnicode("\uD83D\uDCE5"));
+        return Button.secondary(getId(), "Archive ticket").withEmoji(Emoji.fromUnicode("\uD83D\uDCE5"));
     }
 
     @Override

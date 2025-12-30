@@ -46,7 +46,7 @@ public class FanartComponent extends EddieComponent implements StatusComponent {
                 ),
                 Permission.BAN_MEMBERS
             ),
-            new RootEddieCommand<>(this, "fanart-manage", "Manage fanart",
+            new RootEddieCommand<>(this, "manage-fanart", "Manage fanart",
                 Util.spread(
                     channel.getCommands(),
                     reviewChannel.getCommands(),

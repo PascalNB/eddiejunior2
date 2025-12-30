@@ -9,12 +9,12 @@ import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 public class FeedbackStopButton extends EddieButton<FeedbackComponent> {
 
     public FeedbackStopButton(FeedbackComponent component) {
-        super(component, "feedback-stop", "End feedback session");
+        super(component, "feedback-stop");
     }
 
     @Override
     public Button getButton() {
-        return Button.danger(getId(), getLabel()).withEmoji(Emoji.fromUnicode("✖️"));
+        return Button.danger(getId(), "End feedback session").withEmoji(Emoji.fromUnicode("✖️"));
     }
 
     @Override

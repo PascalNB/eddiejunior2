@@ -17,22 +17,18 @@ import java.util.stream.Collectors;
 public class DatabaseManager {
 
     private static final DatabaseManager INSTANCE = new DatabaseManager();
+    private static final Query GET_SETTINGS = new Query(
+        "SELECT value FROM setting WHERE guild_id=? AND component_id=? AND name=?;");
+    private static final Query ADD_SETTING = new Query(
+        "INSERT INTO setting (guild_id,component_id,name,value) VALUES(?,?,?,?);");
+    private static final Query REMOVE_SETTING = new Query(
+        "DELETE FROM setting WHERE guild_id=? AND component_id=? AND name=?;");
+    private static final Query REMOVE_SETTING_VALUE = new Query(
+        "DELETE FROM setting WHERE guild_id=? AND component_id=? AND name=? AND value=?;");
 
     public static DatabaseManager getInstance() {
         return INSTANCE;
     }
-
-    private static final Query GET_SETTINGS = new Query(
-        "SELECT value FROM setting WHERE guild_id=? AND component_id=? AND name=?;");
-
-    private static final Query ADD_SETTING = new Query(
-        "INSERT INTO setting (guild_id,component_id,name,value) VALUES(?,?,?,?);");
-
-    private static final Query REMOVE_SETTING = new Query(
-        "DELETE FROM setting WHERE guild_id=? AND component_id=? AND name=?;");
-
-    private static final Query REMOVE_SETTING_VALUE = new Query(
-        "DELETE FROM setting WHERE guild_id=? AND component_id=? AND name=? AND value=?;");
 
     public static boolean createDatabase() throws IOException {
         File dbFile = new File("database.sqlite3");
@@ -85,6 +81,19 @@ public class DatabaseManager {
         return DatabaseAction.allOf(
             DatabaseAction.of(REMOVE_SETTING.withArgs(guildId, componentId, setting)),
             DatabaseAction.of(ADD_SETTING.withArgs(guildId, componentId, setting, value))
+        ).execute();
+    }
+
+    public Promise<Void> addSettings(String guildId, String componentId, String setting, Collection<String> values) {
+        return DatabaseAction.allOf(
+            values.stream()
+                .map(value ->
+                    DatabaseAction.allOf(
+                        DatabaseAction.of(REMOVE_SETTING.withArgs(guildId, componentId, setting)),
+                        DatabaseAction.of(ADD_SETTING.withArgs(guildId, componentId, setting, value))
+                    )
+                )
+                .toList()
         ).execute();
     }
 
