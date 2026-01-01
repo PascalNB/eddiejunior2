@@ -1,36 +1,29 @@
 package com.pascalnb.eddie;
 
-import com.pascalnb.eddie.listeners.ButtonListener;
-import com.pascalnb.eddie.listeners.CommandListener;
-import com.pascalnb.eddie.listeners.ModalListener;
-import com.pascalnb.eddie.listeners.StringSelectListener;
+import com.pascalnb.eddie.listeners.*;
 import com.pascalnb.eddie.models.EddieComponent;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.hooks.EventListener;
+import net.dv8tion.jda.api.events.GenericEvent;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
-public class GuildManager extends ComponentLogger {
+public class GuildManager extends ComponentLogger implements net.dv8tion.jda.api.hooks.EventListener {
 
     private final Guild guild;
     private final Collection<EddieComponent> components = new ArrayList<>();
-    private final CommandListener commandListener = new CommandListener();
-    private final ButtonListener buttonListener = new ButtonListener();
-    private final ModalListener modalListener = new ModalListener();
-    private final StringSelectListener stringSelectListener = new StringSelectListener();
+    private final EventHandler eventHandler;
     private EddieLogger logger = null;
 
     public GuildManager(Guild guild) {
         super(null);
         this.guild = guild;
+        this.eventHandler = new JDAEventHandler(guild.getId());
     }
 
     public void addComponent(EddieComponent component) {
-        component.getCommands().forEach(this.commandListener::addCommand);
-        component.getButtons().forEach(this.buttonListener::addButton);
-        component.getModals().forEach(this.modalListener::addModal);
-        component.getStringSelectors().forEach(this.stringSelectListener::addStringSelector);
+        component.getHandlers().forEach(eventHandler::addHandler);
         if (component instanceof EddieLogger eddieLogger) {
             // Set logger of previous components
             this.logger = eddieLogger;
@@ -52,14 +45,9 @@ public class GuildManager extends ComponentLogger {
         return this.guild;
     }
 
-    public Collection<EventListener> getListeners() {
-        return Util.spread(
-            commandListener,
-            buttonListener,
-            modalListener,
-            stringSelectListener,
-            components.stream().flatMap(c -> c.getEventListeners().stream()).toList()
-        );
+    @Override
+    public void onEvent(@NotNull GenericEvent event) {
+        this.eventHandler.accept(event);
     }
 
 }

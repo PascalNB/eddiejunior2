@@ -14,12 +14,12 @@ public class FeedbackNextButton extends EddieButton<FeedbackComponent> {
     }
 
     @Override
-    public Button getButton() {
+    public Button getEntity() {
         return Button.primary(getId(), "Get next song").withEmoji(Emoji.fromUnicode("🎵"));
     }
 
     @Override
-    public void handle(ButtonInteractionEvent event) {
+    public void accept(ButtonInteractionEvent event) {
         event.deferEdit().queue(hook -> {
             try {
                 getComponent().handleNextSubmission(event.getMessage(), hook);

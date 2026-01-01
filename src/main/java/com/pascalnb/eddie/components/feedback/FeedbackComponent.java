@@ -18,7 +18,6 @@ import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
-import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 
@@ -35,10 +34,10 @@ public class FeedbackComponent extends EddieComponent implements RunnableCompone
 
     private final FeedbackSubmitModal submitModal = new FeedbackSubmitModal(this);
     private final FeedbackSubmitButton submitButton = new FeedbackSubmitButton(this);
-    private final FeedbackSubmitMenu submitMenu = new FeedbackSubmitMenu(this);
+    private final FeedbackSubmitMessage submitMenu = new FeedbackSubmitMessage(this);
     private final FeedbackNextButton nextButton = new FeedbackNextButton(this);
     private final FeedbackStopButton stopButton = new FeedbackStopButton(this);
-    private final FeedbackStartMenu startMenu = new FeedbackStartMenu(this);
+    private final FeedbackStartMessage startMenu = new FeedbackStartMessage(this);
 
     public FeedbackComponent(ComponentConfig config) {
         super(config);
@@ -63,42 +62,38 @@ public class FeedbackComponent extends EddieComponent implements RunnableCompone
         this.winRole = createComponent(RoleVariableComponent.factory("win-role"));
         this.voiceChannel = createComponent(AudioChannelVariableComponent.factory("voice-channel"));
 
-        addCommands(
-            List.of(
-                new RootEddieCommand<>(this, "feedback", "Feedback",
-                    Util.spread(
-                        new StatusCommand<>(this),
-                        new StartCommand<>(this),
-                        new StopCommand<>(this),
-                        blacklist.getCommands(),
-                        new FeedbackMessageCommand(this),
-                        new FeedbackResetCommand(this),
-                        new FeedbackRemoveCommand(this)
-                    ),
-                    Permission.BAN_MEMBERS
+        register(
+            new SimpleEddieCommand<>(this, "feedback", "Feedback",
+                Util.spread(
+                    new StatusCommand<>(this),
+                    new StartCommand<>(this),
+                    new StopCommand<>(this),
+                    blacklist.getCommands(),
+                    new FeedbackMessageCommand(this),
+                    new FeedbackResetCommand(this),
+                    new FeedbackRemoveCommand(this)
                 ),
-                new RootEddieCommand<>(this, "manage-feedback", "Manage feedback",
-                    Util.spread(
-                        websites.getCommands(),
-                        submissionChannel.getCommands(),
-                        chatChannel.getCommands(),
-                        winRole.getCommands(),
-                        voiceChannel.getCommands()
-                    ),
-                    Permission.BAN_MEMBERS, Permission.MANAGE_SERVER
-                )
-            )
-        );
-
-        addButtons(List.of(
+                Permission.BAN_MEMBERS
+            ),
+            new SimpleEddieCommand<>(this, "manage-feedback", "Manage feedback",
+                Util.spread(
+                    websites.getCommands(),
+                    submissionChannel.getCommands(),
+                    chatChannel.getCommands(),
+                    winRole.getCommands(),
+                    voiceChannel.getCommands()
+                ),
+                Permission.BAN_MEMBERS, Permission.MANAGE_SERVER
+            ),
             this.submitButton,
             this.nextButton,
-            this.stopButton
-        ));
-
-        addModal(
+            this.stopButton,
             this.submitModal
         );
+    }
+
+    public String getSubmission(Member member) throws CommandException {
+        return getSaveSession().getSubmission(member);
     }
 
     private FeedbackSession getSaveSession() throws CommandException {
@@ -107,10 +102,6 @@ public class FeedbackComponent extends EddieComponent implements RunnableCompone
             throw new CommandException("No feedback session is currently running");
         }
         return currentSession;
-    }
-
-    public String getSubmission(Member member) throws CommandException {
-        return getSaveSession().getSubmission(member);
     }
 
     public void handleSubmission(Member member, String url) throws CommandException {
@@ -173,11 +164,11 @@ public class FeedbackComponent extends EddieComponent implements RunnableCompone
         return stopButton;
     }
 
-    public FeedbackStartMenu getStartMenu() {
+    public FeedbackStartMessage getStartMenu() {
         return startMenu;
     }
 
-    public FeedbackSubmitMenu getSubmitMenu() {
+    public FeedbackSubmitMessage getSubmitMenu() {
         return submitMenu;
     }
 

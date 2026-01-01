@@ -5,6 +5,7 @@ import com.pascalnb.eddie.components.setting.VariableComponent;
 import com.pascalnb.eddie.components.setting.set.VariableSetComponent;
 import com.pascalnb.eddie.models.EddieCommand;
 import com.pascalnb.eddie.models.EddieComponent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.SlashCommandInteraction;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
@@ -66,12 +67,7 @@ public class StatusCommand<T extends EddieComponent & StatusComponent> extends E
     }
 
     @Override
-    public List<OptionData> getOptions() {
-        return List.of();
-    }
-
-    @Override
-    public void handle(SlashCommandInteraction event) {
+    public void accept(SlashCommandInteractionEvent event) {
         Collection<Map.Entry<String, String>> variables = getStatus(getComponent());
         String statusString = variables.stream()
             .sorted(Map.Entry.comparingByKey())

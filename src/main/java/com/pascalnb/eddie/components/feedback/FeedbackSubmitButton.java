@@ -15,18 +15,18 @@ public class FeedbackSubmitButton extends EddieButton<FeedbackComponent> {
     }
 
     @Override
-    public Button getButton() {
+    public Button getEntity() {
         return Button.success(getId(),  "Submit song").withEmoji(Emoji.fromUnicode("🎵"));
     }
 
     @Override
-    public void handle(ButtonInteractionEvent event) {
+    public void accept(ButtonInteractionEvent event) {
         try {
             String submissionUrl = getComponent().getSubmission(event.getMember());
             if (submissionUrl != null) {
                 event.replyModal(getEditModal(submissionUrl)).queue();
             } else {
-                event.replyModal(getComponent().getSubmitModal().getModal()).queue();
+                event.replyModal(getComponent().getSubmitModal().getEntity()).queue();
             }
         } catch (CommandException e) {
             event.replyEmbeds(
@@ -36,7 +36,7 @@ public class FeedbackSubmitButton extends EddieButton<FeedbackComponent> {
     }
 
     private Modal getEditModal(String url) {
-        return getComponent().getSubmitModal().withUrl(url).getModal();
+        return getComponent().getSubmitModal().withUrl(url).getEntity();
     }
 
 }

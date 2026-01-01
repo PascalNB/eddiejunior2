@@ -12,13 +12,15 @@ class FaqEditButton extends EddieButton<FaqEditComponent> {
     }
 
     @Override
-    public Button getButton() {
+    public Button getEntity() {
         return Button.primary(getId(), "Edit").withEmoji(Emoji.fromUnicode("✏️"));
     }
 
     @Override
-    public void handle(ButtonInteractionEvent event) {
-        event.replyModal(getComponent().getEditModal().getModal()).queue();
+    public void accept(ButtonInteractionEvent event) {
+        event.replyModal(
+            getComponent().createDynamic("edit", FaqEditModal::new).getEntity()
+        ).queue();
     }
 
 }

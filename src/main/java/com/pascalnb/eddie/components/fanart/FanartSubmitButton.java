@@ -12,13 +12,13 @@ public class FanartSubmitButton extends EddieButton<FanartComponent> {
     }
 
     @Override
-    public Button getButton() {
+    public Button getEntity() {
         return Button.primary(getId(), "Submit art").withEmoji(Emoji.fromUnicode("➕"));
     }
 
     @Override
-    public void handle(ButtonInteractionEvent event) {
-        event.replyModal(getComponent().getSubmitModal().getModal()).queue();
+    public void accept(ButtonInteractionEvent event) {
+        event.replyModal(getComponent().getSubmitModal().getEntity()).queue();
     }
 
 }

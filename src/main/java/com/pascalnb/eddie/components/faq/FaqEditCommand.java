@@ -2,6 +2,7 @@ package com.pascalnb.eddie.components.faq;
 
 import com.pascalnb.eddie.components.faq.edit.FaqEditComponent;
 import com.pascalnb.eddie.models.EddieCommand;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.SlashCommandInteraction;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
@@ -14,12 +15,7 @@ public class FaqEditCommand extends EddieCommand<FaqComponent> {
     }
 
     @Override
-    public List<OptionData> getOptions() {
-        return List.of();
-    }
-
-    @Override
-    public void handle(SlashCommandInteraction event) {
+    public void accept(SlashCommandInteractionEvent event) {
         event.deferReply().queue(hook -> {
             FaqEditComponent editMenu = getComponent().createEditMenu();
             hook.sendMessage(editMenu.getMessage()).queue();

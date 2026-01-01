@@ -13,12 +13,12 @@ public class FeedbackStopButton extends EddieButton<FeedbackComponent> {
     }
 
     @Override
-    public Button getButton() {
+    public Button getEntity() {
         return Button.danger(getId(), "End feedback session").withEmoji(Emoji.fromUnicode("✖️"));
     }
 
     @Override
-    public void handle(ButtonInteractionEvent event) {
+    public void accept(ButtonInteractionEvent event) {
         if (!getComponent().isRunning()) {
             event.replyEmbeds(
                 EmbedUtil.error("There is no feedback session running at the moment").build()

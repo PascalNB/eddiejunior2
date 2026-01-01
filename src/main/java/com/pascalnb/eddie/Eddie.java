@@ -10,10 +10,7 @@ import com.pascalnb.eddie.components.modmail.ModmailComponent;
 import com.pascalnb.eddie.components.ping.PingComponent;
 import com.pascalnb.eddie.database.DatabaseManager;
 import com.pascalnb.eddie.listeners.GuildEventListener;
-import com.pascalnb.eddie.models.ComponentConfig;
-import com.pascalnb.eddie.models.EddieCommand;
-import com.pascalnb.eddie.models.EddieComponent;
-import com.pascalnb.eddie.models.EddieComponentFactory;
+import com.pascalnb.eddie.models.*;
 import io.github.cdimascio.dotenv.Dotenv;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -21,7 +18,6 @@ import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.guild.GuildReadyEvent;
-import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.requests.RestAction;
@@ -31,7 +27,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 
 public class Eddie {
@@ -88,13 +83,15 @@ public class Eddie {
         registerCommands(
             guild,
             components.stream()
-                .flatMap(c -> c.getCommands().stream())
+                .flatMap(c -> c.getHandlersWithEntityType(CommandData.class).stream()
+                    .map(EntityProvider::getEntity)
+                )
                 .toList()
         ).queue();
         return guildManager;
     }
 
-    private static JDA buildJDA(String token, EventListener... listeners) {
+    private static JDA buildJDA(String token, net.dv8tion.jda.api.hooks.EventListener... listeners) {
         return JDABuilder.createLight(token,
                 GatewayIntent.GUILD_MEMBERS,
                 GatewayIntent.SCHEDULED_EVENTS
@@ -122,12 +119,8 @@ public class Eddie {
             .toList();
     }
 
-    private static RestAction<Void> registerCommands(Guild guild, Collection<EddieCommand<?>> commands) {
-        List<? extends CommandData> commandDataList = commands.stream()
-            .map(CommandManager::getCommandData)
-            .toList();
-
-        return CommandManager.registerCommands(guild, commandDataList).map(c -> {
+    private static RestAction<Void> registerCommands(Guild guild, Collection<? extends CommandData> commands) {
+        return CommandManager.registerCommands(guild, commands).map(c -> {
             if (!c.removed().isEmpty()) System.out.println("Removed commands: " + c.removed());
             if (!c.added().isEmpty()) System.out.println("Added commands: " + c.added());
             if (!c.edited().isEmpty()) System.out.println("Edited commands: " + c.edited());

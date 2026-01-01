@@ -12,13 +12,13 @@ public class ModmailSubmitButton extends EddieButton<ModmailComponent> {
     }
 
     @Override
-    public Button getButton() {
+    public Button getEntity() {
         return Button.primary(getId(), "New ticket").withEmoji(Emoji.fromUnicode("➕"));
     }
 
     @Override
-    public void handle(ButtonInteractionEvent event) {
-        event.replyModal(getComponent().getSubmitModal().getModal()).queue();
+    public void accept(ButtonInteractionEvent event) {
+        event.replyModal(getComponent().getSubmitModal().getEntity()).queue();
     }
 
 }

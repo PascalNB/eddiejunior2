@@ -1,27 +1,27 @@
 package com.pascalnb.eddie.components.feedback;
 
 import com.pascalnb.eddie.EmbedUtil;
-import com.pascalnb.eddie.models.EddieMenu;
+import com.pascalnb.eddie.models.EddieMessage;
 import net.dv8tion.jda.api.components.actionrow.ActionRow;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 
-public class FeedbackStartMenu extends EddieMenu<FeedbackComponent> {
+public class FeedbackStartMessage extends EddieMessage<FeedbackComponent> {
 
-    public FeedbackStartMenu(FeedbackComponent component) {
+    public FeedbackStartMessage(FeedbackComponent component) {
         super(component);
     }
 
     @Override
-    public MessageCreateData getMessage() {
+    public MessageCreateData getEntity() {
         return new MessageCreateBuilder()
             .setEmbeds(EmbedUtil.ok()
                 .setTitle("Feedback session started")
                 .build()
             )
             .setComponents(ActionRow.of(
-                getComponent().getNextButton().getButton().withLabel("Get first song"),
-                getComponent().getStopButton().getButton()
+                getComponent().getNextButton().getEntity().withLabel("Get first song"),
+                getComponent().getStopButton().getEntity()
             ))
             .build();
     }

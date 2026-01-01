@@ -29,7 +29,7 @@ public class ModmailMessageModal extends EddieModal<ModmailComponent> {
     }
 
     @Override
-    public Modal getModal() {
+    public Modal getEntity() {
         return Modal.create(getId(), "Create message")
             .addComponents(
                 Label.of(
@@ -53,7 +53,7 @@ public class ModmailMessageModal extends EddieModal<ModmailComponent> {
     }
 
     @Override
-    public void handle(ModalInteractionEvent event) {
+    public void accept(ModalInteractionEvent event) {
         String content = Objects.requireNonNull(event.getValue("message")).getAsString();
         Mentions mentions = Objects.requireNonNull(event.getValue("channel")).getAsMentions();
         List<TextChannel> channels = mentions.getChannels(TextChannel.class);
@@ -64,7 +64,7 @@ public class ModmailMessageModal extends EddieModal<ModmailComponent> {
                 Container.of(
                     TextDisplay.of(content),
                     ActionRow.of(
-                        getComponent().getSubmitButton().getButton()
+                        getComponent().getSubmitButton().getEntity()
                     )
                 )
             )

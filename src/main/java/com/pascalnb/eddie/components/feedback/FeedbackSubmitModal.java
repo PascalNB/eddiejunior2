@@ -26,7 +26,7 @@ public class FeedbackSubmitModal extends EddieModal<FeedbackComponent> {
     }
 
     @Override
-    public Modal getModal() {
+    public Modal getEntity() {
         return Modal.create(getId(), "Submit song")
             .addComponents(
                 Label.of("Song link",
@@ -44,7 +44,7 @@ public class FeedbackSubmitModal extends EddieModal<FeedbackComponent> {
     }
 
     @Override
-    public void handle(ModalInteractionEvent event) {
+    public void accept(ModalInteractionEvent event) {
         String url = Objects.requireNonNull(event.getValue("url")).getAsString();
         event.deferReply(true).queue(hook -> {
             try {

@@ -11,7 +11,7 @@ import com.pascalnb.eddie.components.setting.Variable;
 import com.pascalnb.eddie.components.setting.VariableComponent;
 import com.pascalnb.eddie.exceptions.CommandException;
 import com.pascalnb.eddie.models.EddieComponent;
-import com.pascalnb.eddie.models.RootEddieCommand;
+import com.pascalnb.eddie.models.SimpleEddieCommand;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
@@ -41,38 +41,27 @@ public class ModmailComponent extends EddieComponent implements StatusComponent 
         this.threadId = new Variable<>(getDB(), "thread_id", String::valueOf, String::valueOf, Integer::valueOf, 0);
         this.mention = createComponent(RoleVariableComponent.factory("mention"));
 
-        addCommands(
-            List.of(
-                new RootEddieCommand<>(this, "modmail", "Modmail",
-                    Util.spread(
-                        new StatusCommand<>(this),
-                        blacklist.getCommands(),
-                        new ModmailArchiveCommand(this)
-                    ),
-                    Permission.BAN_MEMBERS
+        register(
+            new SimpleEddieCommand<>(this, "modmail", "Modmail",
+                Util.spread(
+                    new StatusCommand<>(this),
+                    blacklist.getCommands(),
+                    new ModmailArchiveCommand(this)
                 ),
-                new RootEddieCommand<>(this, "manage-modmail", "Manage modmail",
-                    Util.spread(
-                        channel.getCommands(),
-                        mention.getCommands(),
-                        new ModmailMessageCommand(this)
-                    ),
-                    Permission.BAN_MEMBERS, Permission.MANAGE_SERVER
-                )
-            )
-        );
-
-        addButtons(
-            List.of(
-                submitButton,
-                archiveButton
-            )
-        );
-        addModals(
-            List.of(
-                messageModal,
-                submitModal
-            )
+                Permission.BAN_MEMBERS
+            ),
+            new SimpleEddieCommand<>(this, "manage-modmail", "Manage modmail",
+                Util.spread(
+                    channel.getCommands(),
+                    mention.getCommands(),
+                    new ModmailMessageCommand(this)
+                ),
+                Permission.BAN_MEMBERS, Permission.MANAGE_SERVER
+            ),
+            submitButton,
+            archiveButton,
+            messageModal,
+            submitModal
         );
     }
 
@@ -90,8 +79,8 @@ public class ModmailComponent extends EddieComponent implements StatusComponent 
             topic = topic.substring(0, Math.min(topic.length(), 100));
         }
 
-        ModmailTicketMenu ticket = new ModmailTicketMenu(this, member, title, message, attachments);
-        MessageCreateData ticketMessage = ticket.getMessage();
+        ModmailTicketMessage ticket = new ModmailTicketMessage(this, member, title, message, attachments);
+        MessageCreateData ticketMessage = ticket.getEntity();
 
         return channel.getValue().createThreadChannel(topic, true).flatMap(thread ->
             thread.addThreadMember(member).flatMap(callback ->

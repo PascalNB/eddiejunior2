@@ -24,12 +24,12 @@ class FaqSubmitButton extends EddieButton<FaqEditComponent> {
     }
 
     @Override
-    public Button getButton() {
+    public Button getEntity() {
         return Button.success(getId(), "Submit").withEmoji(Emoji.fromUnicode("✅"));
     }
 
     @Override
-    public void handle(ButtonInteractionEvent event) {
+    public void accept(ButtonInteractionEvent event) {
         event.deferEdit().queue(hook ->
             getComponent().submit(message -> {
                 Collection<FaqComponent.Question> changes = getComponent().getChanges();
@@ -66,7 +66,7 @@ class FaqSubmitButton extends EddieButton<FaqEditComponent> {
                     .setComponents(
                         Container.of(components).withAccentColor(ColorUtil.GREEN)
                     )
-                    .build()).useComponentsV2().queue();
+                    .build()).useComponentsV2().queue(callback -> getComponent().unmount());
             })
         );
     }

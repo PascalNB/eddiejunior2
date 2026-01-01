@@ -28,7 +28,7 @@ public class FaqMessageModal extends EddieModal<FaqComponent> {
     }
 
     @Override
-    public Modal getModal() {
+    public Modal getEntity() {
         return Modal.create(getId(), "Create message")
             .addComponents(
                 Label.of(
@@ -53,7 +53,7 @@ public class FaqMessageModal extends EddieModal<FaqComponent> {
     }
 
     @Override
-    public void handle(ModalInteractionEvent event) {
+    public void accept(ModalInteractionEvent event) {
         String content = Objects.requireNonNull(event.getValue("message")).getAsString();
         Mentions mentions = Objects.requireNonNull(event.getValue("channel")).getAsMentions();
         TextChannel channel = mentions.getChannels(TextChannel.class).getFirst();
@@ -64,7 +64,7 @@ public class FaqMessageModal extends EddieModal<FaqComponent> {
                 Container.of(
                     TextDisplay.of(content),
                     ActionRow.of(
-                        getComponent().getSelector().getMenu()
+                        getComponent().getSelector().getEntity()
                     )
                 )
             )

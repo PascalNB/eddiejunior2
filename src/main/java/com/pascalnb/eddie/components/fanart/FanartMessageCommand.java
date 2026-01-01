@@ -1,7 +1,7 @@
 package com.pascalnb.eddie.components.fanart;
 
 import com.pascalnb.eddie.models.EddieCommand;
-import net.dv8tion.jda.api.interactions.commands.SlashCommandInteraction;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 import java.util.List;
@@ -13,13 +13,8 @@ public class FanartMessageCommand extends EddieCommand<FanartComponent> {
     }
 
     @Override
-    public List<OptionData> getOptions() {
-        return List.of();
-    }
-
-    @Override
-    public void handle(SlashCommandInteraction event) {
-        event.replyModal(getComponent().getMessageModal().getModal()).queue();
+    public void accept(SlashCommandInteractionEvent event) {
+        event.replyModal(getComponent().getMessageModal().getEntity()).queue();
     }
 
 }

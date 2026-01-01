@@ -1,4 +1,4 @@
-package com.pascalnb.eddie.components.dynamic;
+package com.pascalnb.eddie.models.dynamic;
 
 import com.pascalnb.eddie.models.ComponentConfig;
 

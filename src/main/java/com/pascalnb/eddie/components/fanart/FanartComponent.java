@@ -9,7 +9,7 @@ import com.pascalnb.eddie.components.setting.VariableComponent;
 import com.pascalnb.eddie.exceptions.CommandException;
 import com.pascalnb.eddie.models.ComponentConfig;
 import com.pascalnb.eddie.models.EddieComponent;
-import com.pascalnb.eddie.models.RootEddieCommand;
+import com.pascalnb.eddie.models.SimpleEddieCommand;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
@@ -38,31 +38,28 @@ public class FanartComponent extends EddieComponent implements StatusComponent {
         this.channel = createComponent(TextChannelVariableComponent.factory("channel"));
         this.reviewChannel = createComponent(TextChannelVariableComponent.factory("review-channel"));
 
-        addCommands(List.of(
-            new RootEddieCommand<>(this, "fanart", "Fanart",
+        register(
+            new SimpleEddieCommand<>(this, "fanart", "Fanart",
                 Util.spread(
                     blacklist.getCommands(),
                     new StatusCommand<>(this)
                 ),
                 Permission.BAN_MEMBERS
             ),
-            new RootEddieCommand<>(this, "manage-fanart", "Manage fanart",
+            new SimpleEddieCommand<>(this, "manage-fanart", "Manage fanart",
                 Util.spread(
                     channel.getCommands(),
                     reviewChannel.getCommands(),
                     new FanartMessageCommand(this)
                 ),
                 Permission.BAN_MEMBERS, Permission.MANAGE_SERVER
-            )
-        ));
-
-        addButtons(List.of(
-            submitButton, approveButton, rejectButton
-        ));
-
-        addModals(List.of(
-            messageModal, submitModal
-        ));
+            ),
+            submitButton,
+            approveButton,
+            rejectButton,
+            messageModal,
+            submitModal
+        );
     }
 
     public RestAction<Message> createSubmission(Member member, String title, String description,
@@ -72,8 +69,8 @@ public class FanartComponent extends EddieComponent implements StatusComponent {
         }
         validateMember(member);
 
-        FanartSubmissionMenu submission = new FanartSubmissionMenu(this, member, title, description, attachments);
-        MessageCreateData submissionMessage = submission.getMessage();
+        FanartSubmissionMessage submission = new FanartSubmissionMessage(this, member, title, description, attachments);
+        MessageCreateData submissionMessage = submission.getEntity();
 
         return reviewChannel.getValue().sendMessage(submissionMessage);
     }

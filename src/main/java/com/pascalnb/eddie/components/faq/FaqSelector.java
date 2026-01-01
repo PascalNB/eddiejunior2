@@ -58,7 +58,7 @@ public class FaqSelector extends EddieStringSelector<FaqComponent> {
     }
 
     @Override
-    public StringSelectMenu getMenu() {
+    public StringSelectMenu getEntity() {
         lock.readLock().lock();
         StringSelectMenu menu = StringSelectMenu.create(getId())
             .addOptions(options)
@@ -70,7 +70,7 @@ public class FaqSelector extends EddieStringSelector<FaqComponent> {
     }
 
     @Override
-    public void handle(StringSelectInteractionEvent event) {
+    public void accept(StringSelectInteractionEvent event) {
         event.deferReply(true).queue(hook -> {
             List<String> values = event.getValues();
             String value = values.getFirst();
@@ -83,7 +83,7 @@ public class FaqSelector extends EddieStringSelector<FaqComponent> {
             }
 
             FaqAnswerMessage answerMessage = getComponent().getAnswerMessage(question);
-            hook.sendMessage(answerMessage.getMessage()).queue();
+            hook.sendMessage(answerMessage.getEntity()).queue();
         });
     }
 

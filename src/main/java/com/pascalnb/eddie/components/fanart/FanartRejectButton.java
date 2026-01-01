@@ -23,12 +23,12 @@ public class FanartRejectButton extends EddieButton<FanartComponent> {
     }
 
     @Override
-    public Button getButton() {
+    public Button getEntity() {
         return Button.danger(getId(), "Reject").withEmoji(Emoji.fromUnicode("✖️"));
     }
 
     @Override
-    public void handle(ButtonInteractionEvent event) {
+    public void accept(ButtonInteractionEvent event) {
         Message message = event.getMessage();
         Container container = message.getComponentTree().getComponents().getFirst().asContainer();
         List<ContainerChildComponentUnion> currentComponents = container.getComponents();

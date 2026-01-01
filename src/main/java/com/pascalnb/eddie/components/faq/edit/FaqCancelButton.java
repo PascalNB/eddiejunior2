@@ -16,19 +16,19 @@ public class FaqCancelButton extends EddieButton<FaqEditComponent> {
     }
 
     @Override
-    public Button getButton() {
+    public Button getEntity() {
         return Button.danger(getId(), "Cancel").withEmoji(Emoji.fromUnicode("✖️"));
     }
 
     @Override
-    public void handle(ButtonInteractionEvent event) {
+    public void accept(ButtonInteractionEvent event) {
         event.editMessage(new MessageEditBuilder()
             .useComponentsV2()
             .setComponents(Container.of(
                 TextDisplay.of("Edit cancelled")
             ).withAccentColor(ColorUtil.RED))
             .build()
-        ).useComponentsV2().queue();
+        ).useComponentsV2().queue(callback -> getComponent().unmount());
     }
 
 }

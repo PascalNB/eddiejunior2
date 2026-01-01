@@ -1,8 +1,8 @@
 package com.pascalnb.eddie.components.faq.edit;
 
-import com.pascalnb.eddie.components.dynamic.DynamicComponent;
-import com.pascalnb.eddie.components.dynamic.DynamicComponentFactory;
-import com.pascalnb.eddie.components.dynamic.DynamicListenerChild;
+import com.pascalnb.eddie.models.dynamic.DynamicComponent;
+import com.pascalnb.eddie.models.dynamic.DynamicComponentFactory;
+import com.pascalnb.eddie.models.dynamic.DynamicListenerChild;
 import com.pascalnb.eddie.components.faq.FaqAnswerMessage;
 import com.pascalnb.eddie.components.faq.FaqComponent;
 import com.pascalnb.eddie.models.*;
@@ -35,9 +35,6 @@ public class FaqEditComponent extends DynamicComponent<FaqEditComponent> {
     private final FaqDeleteButton deleteButton;
     private final FaqSubmitButton submitButton;
     private final FaqEditSelectMenu editSelectMenu;
-    private final FaqAddModal addModal;
-    private final FaqEditModal editModal;
-    private final FaqRemoveImageButton removeImageButton;
     private final FaqCancelButton cancelButton;
 
     public FaqEditComponent(ComponentConfig config, FaqComponent component, DynamicListenerChild dynamic,
@@ -57,15 +54,12 @@ public class FaqEditComponent extends DynamicComponent<FaqEditComponent> {
         this.selectedQuestion = selectedQuestion;
         this.changes = changes;
 
-        addButton = createDynamicButton("add", FaqAddButton::new);
-        editButton = createDynamicButton("edit", FaqEditButton::new);
-        deleteButton = createDynamicButton("delete", FaqDeleteButton::new);
-        submitButton = createDynamicButton("submit", FaqSubmitButton::new);
-        editSelectMenu = createDynamicStringSelector("select", FaqEditSelectMenu::new);
-        addModal = createDynamicModal("add", FaqAddModal::new);
-        editModal = createDynamicModal("edit", FaqEditModal::new);
-        removeImageButton = createDynamicButton("remove-image", FaqRemoveImageButton::new);
-        cancelButton = createDynamicButton("cancel", FaqCancelButton::new);
+        addButton = createDynamic("add", FaqAddButton::new);
+        editButton = createDynamic("edit", FaqEditButton::new);
+        deleteButton = createDynamic("delete", FaqDeleteButton::new);
+        submitButton = createDynamic("submit", FaqSubmitButton::new);
+        editSelectMenu = createDynamic("select", FaqEditSelectMenu::new);
+        cancelButton = createDynamic("cancel", FaqCancelButton::new);
     }
 
     public List<FaqComponent.Question> getQuestions() {
@@ -78,14 +72,6 @@ public class FaqEditComponent extends DynamicComponent<FaqEditComponent> {
 
     public Collection<FaqComponent.Question> getChanges() {
         return changes;
-    }
-
-    public FaqAddModal getAddModal() {
-        return addModal;
-    }
-
-    public FaqEditModal getEditModal() {
-        return editModal;
     }
 
     public static EddieComponentFactory<FaqEditComponent> factory(FaqComponent component, DynamicListenerChild dynamic,
@@ -104,6 +90,15 @@ public class FaqEditComponent extends DynamicComponent<FaqEditComponent> {
         this.component.updateQuestions(questions, callback);
     }
 
+    public void unmount() {
+        this.component.deregisterEditMenu(this);
+    }
+
+    @Override
+    public DynamicComponentFactory<FaqEditComponent> getCloningFactory() {
+        return dynamicFactory(this.questions, this.selectedQuestion, this.changes);
+    }
+
     @Override
     public MessageCreateData getMessage() {
         List<ContainerChildComponent> components = new ArrayList<>();
@@ -116,7 +111,7 @@ public class FaqEditComponent extends DynamicComponent<FaqEditComponent> {
             // Add selecte menu
             if (this.selectedQuestion != null) {
                 FaqAnswerMessage answerMessage = this.component.getAnswerMessage(this.selectedQuestion);
-                MessageComponentTree tree = answerMessage.getMessage().getComponentTree();
+                MessageComponentTree tree = answerMessage.getEntity().getComponentTree();
                 Container answerContainer = tree.getComponents().getFirst().asContainer();
                 components.addAll(answerContainer.getComponents());
 
@@ -124,14 +119,11 @@ public class FaqEditComponent extends DynamicComponent<FaqEditComponent> {
                     Separator.createDivider(Separator.Spacing.SMALL)
                 );
 
-                List<ActionRowChildComponent> buttons = new ArrayList<>();
-                buttons.add(deleteButton.getButton());
-                if (this.selectedQuestion.getUrl() != null) {
-                    buttons.add(removeImageButton.getButton());
-                }
-                buttons.add(editButton.getButton());
                 components.add(
-                    ActionRow.of(buttons)
+                    ActionRow.of(
+                        deleteButton.getEntity(),
+                        editButton.getEntity()
+                    )
                 );
 
             } else {
@@ -145,18 +137,18 @@ public class FaqEditComponent extends DynamicComponent<FaqEditComponent> {
 
             components.add(
                 ActionRow.of(
-                    editSelectMenu.getMenu()
+                    editSelectMenu.getEntity()
                 )
             );
         }
 
         List<ActionRowChildComponent> bottomButtons = new ArrayList<>(List.of(
-            cancelButton.getButton(),
-            addButton.getButton()
+            cancelButton.getEntity(),
+            addButton.getEntity()
         ));
 
         if (!changes.isEmpty()) {
-            bottomButtons.add(submitButton.getButton());
+            bottomButtons.add(submitButton.getEntity());
         }
 
         components.add(

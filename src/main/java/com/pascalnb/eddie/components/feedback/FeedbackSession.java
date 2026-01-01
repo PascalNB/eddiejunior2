@@ -45,13 +45,13 @@ public class FeedbackSession implements StatusComponent {
     public synchronized void start() {
         component.getChatChannel().apply(channel ->
             channel.sendMessage(
-                component.getSubmitMenu().getMessage()
+                component.getSubmitMenu().getEntity()
             ).queue()
         );
 
         component.getSubmissionChannel().apply(channel ->
             channel.sendMessage(
-                component.getStartMenu().getMessage()
+                component.getStartMenu().getEntity()
             ).queue()
         );
     }
@@ -224,7 +224,7 @@ public class FeedbackSession implements StatusComponent {
 
         builder.setEmbeds(embed.build());
         builder.addComponents(
-            ActionRow.of(this.component.getNextButton().getButton())
+            ActionRow.of(this.component.getNextButton().getEntity())
         );
 
         return builder.build();

@@ -8,7 +8,7 @@ public class PingComponent extends EddieComponent {
     public PingComponent(ComponentConfig config) {
         super(config);
 
-        addCommand(
+        register(
             new PingCommand(this)
         );
     }

@@ -1,26 +1,22 @@
 package com.pascalnb.eddie.models;
 
-import com.pascalnb.eddie.Handler;
 import net.dv8tion.jda.api.components.buttons.Button;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 
-public abstract class EddieButton<T extends IEddieComponent> implements Handler<ButtonInteractionEvent> {
-
-    private final T component;
-    private final String id;
+public abstract class EddieButton<T extends EddieComponent> extends EntityComponentHandler<Button, ButtonInteractionEvent, T> {
 
     public EddieButton(T component, String id) {
-        this.component = component;
-        this.id = id;
+        super(component, id);
     }
 
-    public abstract Button getButton();
-
-    public T getComponent() {
-        return component;
+    @Override
+    public Class<ButtonInteractionEvent> getType() {
+        return ButtonInteractionEvent.class;
     }
-    public String getId() {
-        return id;
+
+    @Override
+    public Class<Button> getEntityType() {
+        return Button.class;
     }
 
 }

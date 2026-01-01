@@ -4,6 +4,7 @@ import com.pascalnb.eddie.EmbedUtil;
 import com.pascalnb.eddie.exceptions.CommandException;
 import com.pascalnb.eddie.models.EddieCommand;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.SlashCommandInteraction;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
@@ -26,7 +27,7 @@ public class FeedbackRemoveCommand extends EddieCommand<FeedbackComponent> {
     }
 
     @Override
-    public void handle(SlashCommandInteraction event){
+    public void accept(SlashCommandInteractionEvent event){
         Member member = Objects.requireNonNull(event.getOption("member")).getAsMember();
         boolean allowResubmit = Objects.requireNonNull(event.getOption("allow-resubmit")).getAsBoolean();
         if (member == null) {

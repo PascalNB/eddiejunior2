@@ -42,7 +42,7 @@ public class GuildEventListener implements EventListener {
             }
 
             try {
-                guildManager.getListeners().forEach(listener -> listener.onEvent(event));
+                guildManager.onEvent(event);
             } catch (Exception e) {
                 guildManager.error(e);
                 e.printStackTrace();

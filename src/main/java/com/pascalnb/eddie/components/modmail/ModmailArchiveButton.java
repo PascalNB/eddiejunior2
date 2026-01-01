@@ -13,12 +13,12 @@ public class ModmailArchiveButton extends EddieButton<ModmailComponent> {
     }
 
     @Override
-    public Button getButton() {
+    public Button getEntity() {
         return Button.secondary(getId(), "Archive ticket").withEmoji(Emoji.fromUnicode("\uD83D\uDCE5"));
     }
 
     @Override
-    public void handle(ButtonInteractionEvent event) {
+    public void accept(ButtonInteractionEvent event) {
         event.replyEmbeds(EmbedUtil.ok("Archiving current thread").build())
             .queue(callback -> {
                 getComponent().getLogger().info(event.getUser(), "Archived thread %s", event.getChannel().getAsMention());

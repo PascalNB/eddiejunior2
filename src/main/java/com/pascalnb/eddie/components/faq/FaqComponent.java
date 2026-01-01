@@ -4,14 +4,14 @@ import com.pascalnb.eddie.URLUtil;
 import com.pascalnb.eddie.Util;
 import com.pascalnb.eddie.components.StatusCommand;
 import com.pascalnb.eddie.components.StatusComponent;
-import com.pascalnb.eddie.components.dynamic.DynamicListener;
+import com.pascalnb.eddie.models.dynamic.DynamicListener;
 import com.pascalnb.eddie.components.faq.edit.FaqEditComponent;
 import com.pascalnb.eddie.components.setting.Variable;
 import com.pascalnb.eddie.components.setting.set.VariableSet;
 import com.pascalnb.eddie.exceptions.CommandException;
 import com.pascalnb.eddie.models.ComponentConfig;
 import com.pascalnb.eddie.models.EddieComponent;
-import com.pascalnb.eddie.models.RootEddieCommand;
+import com.pascalnb.eddie.models.SimpleEddieCommand;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.components.Component;
 import net.dv8tion.jda.api.components.actionrow.ActionRow;
@@ -60,25 +60,24 @@ public class FaqComponent extends EddieComponent implements StatusComponent {
         this.selector = new FaqSelector(this);
         this.selector.update();
 
-        addCommands(List.of(
-            new RootEddieCommand<>(this, "faq", "FAQ",
+        register(
+            new SimpleEddieCommand<>(this, "faq", "FAQ",
                 Util.spread(
                     new StatusCommand<>(this)
                 ),
                 Permission.BAN_MEMBERS
             ),
-            new RootEddieCommand<>(this, "manage-faq", "FAQ",
+            new SimpleEddieCommand<>(this, "manage-faq", "FAQ",
                 Util.spread(
                     new FaqMessageCommand(this),
                     new FaqEditCommand(this)
                 ),
                 Permission.BAN_MEMBERS, Permission.MANAGE_SERVER
-            )
-        ));
-
-        addStringSelector(this.selector);
-        addEventListener(this.dynamicListener);
-        addModal(this.messageModal);
+            ),
+            selector,
+            messageModal,
+            dynamicListener
+        );
     }
 
     public void setMessage(Message message) throws CommandException {
@@ -103,7 +102,7 @@ public class FaqComponent extends EddieComponent implements StatusComponent {
                 .asActionRow();
             List<ContainerChildComponent> childComponents = new ArrayList<>(container.getComponents());
             int actionRowIndex = childComponents.indexOf(actionRow);
-            childComponents.set(actionRowIndex, ActionRow.of(getSelector().getMenu()));
+            childComponents.set(actionRowIndex, ActionRow.of(getSelector().getEntity()));
             MessageEditData editData = MessageEditBuilder.fromMessage(msg)
                 .setComponents(container.withComponents(childComponents))
                 .build();
@@ -126,6 +125,10 @@ public class FaqComponent extends EddieComponent implements StatusComponent {
         return createComponent(FaqEditComponent.factory(this, dynamicListener.createInstance(), getQuestions()));
     }
 
+    public void deregisterEditMenu(FaqEditComponent editComponent) {
+        dynamicListener.removeInstance(editComponent.getDynamicId());
+    }
+
     public Collection<Question> getQuestions() {
         return questions.getValues();
     }
@@ -145,7 +148,6 @@ public class FaqComponent extends EddieComponent implements StatusComponent {
         private final String answer;
         private final @Nullable String description;
         private final @Nullable String emoji;
-        private final @Nullable String url;
         private final int index;
 
         public Question(
@@ -153,14 +155,12 @@ public class FaqComponent extends EddieComponent implements StatusComponent {
             String answer,
             @Nullable String description,
             @Nullable String emoji,
-            @Nullable String url,
             @Nullable Integer index
         ) {
             this.question = question;
             this.answer = answer;
             this.description = description;
             this.emoji = emoji;
-            this.url = url;
             this.index = index == null ? 0 : index;
         }
 
@@ -170,9 +170,8 @@ public class FaqComponent extends EddieComponent implements StatusComponent {
             String a = element.getString("a");
             String e = element.optString("e", null);
             String d = element.optString("d", null);
-            String u = element.optString("u", null);
             int i = element.optInt("i", 0);
-            return new Question(q, a, d, e, u, i);
+            return new Question(q, a, d, e, i);
         }
 
         public String toJson() {
@@ -181,7 +180,6 @@ public class FaqComponent extends EddieComponent implements StatusComponent {
                 .put("a", answer)
                 .put("d", description)
                 .put("e", emoji)
-                .put("u", url)
                 .put("i", index);
             return object.toString();
         }
@@ -200,10 +198,6 @@ public class FaqComponent extends EddieComponent implements StatusComponent {
 
         public String getQuestion() {
             return question;
-        }
-
-        public @Nullable String getUrl() {
-            return url;
         }
 
         public int getIndex() {

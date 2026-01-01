@@ -3,6 +3,7 @@ package com.pascalnb.eddie.components.setting.set;
 import com.pascalnb.eddie.EmbedUtil;
 import com.pascalnb.eddie.models.EddieCommand;
 import com.pascalnb.eddie.exceptions.CommandException;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.SlashCommandInteraction;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
@@ -24,7 +25,7 @@ public class VariableSetAddCommand<T> extends EddieCommand<VariableSetComponent<
     }
 
     @Override
-    public void handle(SlashCommandInteraction event) {
+    public void accept(SlashCommandInteractionEvent event) {
         try {
             String optionName = getComponent().getOptionData().getName();
             OptionMapping optionMapping = Objects.requireNonNull(event.getOption(optionName));

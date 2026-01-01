@@ -4,6 +4,7 @@ import com.pascalnb.eddie.EmbedUtil;
 import com.pascalnb.eddie.exceptions.CommandException;
 import com.pascalnb.eddie.models.EddieCommand;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.SlashCommandInteraction;
@@ -25,7 +26,7 @@ public class FeedbackResetCommand extends EddieCommand<FeedbackComponent> {
     }
 
     @Override
-    public void handle(SlashCommandInteraction event) {
+    public void accept(SlashCommandInteractionEvent event) {
         OptionMapping userOption = event.getOption("user");
         if (userOption == null) {
             try {

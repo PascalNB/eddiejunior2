@@ -1,10 +1,7 @@
 package com.pascalnb.eddie;
 
-import com.pascalnb.eddie.exceptions.CommandException;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public final class Util {
 
@@ -24,8 +21,31 @@ public final class Util {
         return result;
     }
 
-    public interface ThrowingConsumer<T> {
-        void accept(T t) throws CommandException;
+    @SuppressWarnings("unchecked")
+    public static <T> T normalizeJson(T value) {
+        return (T) normalizeObject(value);
+    }
+
+    private static Object normalizeObject(Object value) {
+        if (value instanceof Map<?, ?> map) {
+            return map.entrySet().stream()
+                .sorted(Map.Entry.comparingByKey(Comparator.comparing(Object::toString)))
+                .collect(Collectors.toMap(
+                    Map.Entry::getKey,
+                    e -> normalizeJson(e.getValue()),
+                    (a, b) -> a,
+                    LinkedHashMap::new
+                ));
+        }
+
+        if (value instanceof Collection<?> list) {
+            return list.stream()
+                .map(Util::normalizeJson)
+                .sorted(Comparator.comparing(Object::toString))
+                .collect(Collectors.toList());
+        }
+
+        return value;
     }
 
 

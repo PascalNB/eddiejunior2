@@ -1,6 +1,6 @@
 package com.pascalnb.eddie.components.fanart;
 
-import com.pascalnb.eddie.models.EddieMenu;
+import com.pascalnb.eddie.models.EddieMessage;
 import net.dv8tion.jda.api.components.actionrow.ActionRow;
 import net.dv8tion.jda.api.components.container.Container;
 import net.dv8tion.jda.api.components.container.ContainerChildComponent;
@@ -19,14 +19,14 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FanartSubmissionMenu extends EddieMenu<FanartComponent> {
+public class FanartSubmissionMessage extends EddieMessage<FanartComponent> {
 
     private final Member member;
     private final String title;
     private final String description;
     private final List<Message.Attachment> attachments;
 
-    public FanartSubmissionMenu(FanartComponent component, Member member, String title, @Nullable String description,
+    public FanartSubmissionMessage(FanartComponent component, Member member, String title, @Nullable String description,
         List<Message.Attachment> attachments) {
         super(component);
         this.member = member;
@@ -36,7 +36,7 @@ public class FanartSubmissionMenu extends EddieMenu<FanartComponent> {
     }
 
     @Override
-    public MessageCreateData getMessage() {
+    public MessageCreateData getEntity() {
         List<ContainerChildComponent> components = new ArrayList<>(List.of(
             Section.of(
                 Thumbnail.fromUrl(member.getEffectiveAvatarUrl()),
@@ -64,8 +64,8 @@ public class FanartSubmissionMenu extends EddieMenu<FanartComponent> {
 
         components.add(
             ActionRow.of(
-                getComponent().getApproveButton().getButton(),
-                getComponent().getRejectButton().getButton()
+                getComponent().getApproveButton().getEntity(),
+                getComponent().getRejectButton().getEntity()
             )
         );
 

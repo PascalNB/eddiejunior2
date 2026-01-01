@@ -1,12 +1,7 @@
 package com.pascalnb.eddie;
 
-import com.pascalnb.eddie.models.EddieCommand;
-import com.pascalnb.eddie.models.GroupedEddieCommand;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.interactions.IntegrationType;
-import net.dv8tion.jda.api.interactions.InteractionContextType;
 import net.dv8tion.jda.api.interactions.commands.Command;
-import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
 import net.dv8tion.jda.api.interactions.commands.build.*;
 import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.internal.requests.CompletedRestAction;
@@ -46,54 +41,10 @@ public class CommandManager {
             );
     }
 
-    public static SlashCommandData getCommandData(EddieCommand<?> command) {
-        SlashCommandData data = Commands.slash(command.getName(), command.getDescription())
-            .setDefaultPermissions(DefaultMemberPermissions.enabledFor(command.getPermissions()))
-            .setContexts(InteractionContextType.GUILD)
-            .setIntegrationTypes(IntegrationType.GUILD_INSTALL);
-
-        if (command instanceof GroupedEddieCommand<?> subHolder) {
-            Collection<? extends EddieCommand<?>> subCommands = subHolder.getSubCommands();
-            if (subCommands.isEmpty()) {
-                throw new IllegalStateException(
-                    "A list of subcommands cannot be empty (command: %s)".formatted(command.getName()));
-            }
-            for (EddieCommand<?> sub : subCommands) {
-                if (sub instanceof GroupedEddieCommand<?> subSubHolder) { // is subcommand group
-                    Collection<? extends EddieCommand<?>> subSubCommands = subSubHolder.getSubCommands();
-                    if (subSubCommands.isEmpty()) {
-                        throw new IllegalStateException(
-                            "A list of subcommands cannot be empty (command: %s)".formatted(sub.getName()));
-                    }
-                    data = data.addSubcommandGroups(
-                        new SubcommandGroupData(sub.getName(), sub.getDescription())
-                            .addSubcommands(
-                                // add subcommands
-                                subSubCommands.stream()
-                                    .map(subSub ->
-                                        new SubcommandData(subSub.getName(), subSub.getDescription())
-                                            .addOptions(subSub.getOptions())
-                                    )
-                                    .toList()
-                            )
-                    );
-                } else { // is subcommand
-                    data = data.addSubcommands(new SubcommandData(sub.getName(),
-                        sub.getDescription())
-                        .addOptions(sub.getOptions())
-                    );
-                }
-            }
-            return data;
-        }
-
-        return data.addOptions(command.getOptions());
-    }
-
     private static RestAction<List<Command>> removeUnusedCommands(
         Guild guild,
         Collection<? extends CommandData> commands,
-        List<Command> currentCommands
+        List<? extends Command> currentCommands
     ) {
         if (currentCommands.isEmpty()) { // no existing commands to remove
             return new CompletedRestAction<>(guild.getJDA(), List.of());
@@ -103,12 +54,12 @@ public class CommandManager {
             .map(CommandData::getName)
             .collect(Collectors.toSet());
 
-        List<? extends RestAction<Command>> removeActions = currentCommands.stream()
+        List<RestAction<Command>> removeActions = currentCommands.stream()
             // get commands that are unused
             .filter(currentCommand -> !commandNames.contains(currentCommand.getName()))
             // delete unused commands
             .map(currentCommand ->
-                guild.deleteCommandById(currentCommand.getId()).map(ignored -> currentCommand)
+                guild.deleteCommandById(currentCommand.getId()).map(ignored -> (Command) currentCommand)
             )
             .toList();
 
@@ -120,7 +71,7 @@ public class CommandManager {
     private static RestAction<List<Command>> registerNewCommands(
         Guild guild,
         Collection<? extends CommandData> commands,
-        List<Command> currentCommands
+        List<? extends Command> currentCommands
     ) {
         if (commands.isEmpty()) { // no new commands to upload
             return new CompletedRestAction<>(guild.getJDA(), List.of());
@@ -130,7 +81,7 @@ public class CommandManager {
             .map(Command::getName)
             .collect(Collectors.toSet());
 
-        List<? extends RestAction<Command>> registerActions = commands.stream()
+        List<RestAction<Command>> registerActions = commands.stream()
             // get commands that are new
             .filter(newCommand -> !currentCommandNames.contains(newCommand.getName()))
             // upload new command
@@ -145,7 +96,7 @@ public class CommandManager {
     private static RestAction<List<Command>> editChangedCommands(
         Guild guild,
         Collection<? extends CommandData> commands,
-        List<Command> currentCommands
+        List<? extends Command> currentCommands
     ) {
         Map<String, Command> currentCommandMap = currentCommands.stream()
             .collect(Collectors.toMap(
@@ -153,19 +104,21 @@ public class CommandManager {
                 Function.identity()
             ));
 
-        List<? extends RestAction<Command>> editActions = commands.stream()
+        List<RestAction<Command>> editActions = commands.stream()
             .filter(newCommand -> {
                 Command currentCommand = currentCommandMap.get(newCommand.getName());
                 if (currentCommand == null) {
                     return false; // new command
                 }
                 CommandData currentCommandData = CommandData.fromCommand(currentCommand);
-                // serialize and compare, only include different commands
-                return !currentCommandData.toData().equals(newCommand.toData());
+                // normalize and compare, only include different commands
+                Map<String, Object> currentNormalized = Util.normalizeJson(currentCommandData.toData().toMap());
+                Map<String, Object> newNormalized = Util.normalizeJson(newCommand.toData().toMap());
+                return !(currentNormalized.equals(newNormalized));
             })
             .map(newCommand -> {
                 Command currentCommand = currentCommandMap.get(newCommand.getName());
-                return currentCommand.editCommand().apply(newCommand);
+                return (RestAction<Command>) currentCommand.editCommand().apply(newCommand);
             })
             .toList();
 

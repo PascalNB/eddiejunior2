@@ -3,6 +3,7 @@ package com.pascalnb.eddie.components.modmail;
 import com.pascalnb.eddie.EmbedUtil;
 import com.pascalnb.eddie.models.EddieCommand;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.SlashCommandInteraction;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
@@ -15,12 +16,7 @@ public class ModmailArchiveCommand extends EddieCommand<ModmailComponent> {
     }
 
     @Override
-    public List<OptionData> getOptions() {
-        return List.of();
-    }
-
-    @Override
-    public void handle(SlashCommandInteraction event) {
+    public void accept(SlashCommandInteractionEvent event) {
         if (!event.getChannel().getType().equals(ChannelType.GUILD_PRIVATE_THREAD)
             || !event.getChannel().getType().equals(ChannelType.GUILD_PUBLIC_THREAD)) {
             event.replyEmbeds(EmbedUtil.error("This command can only be used in a modmail thread.").build()).queue();

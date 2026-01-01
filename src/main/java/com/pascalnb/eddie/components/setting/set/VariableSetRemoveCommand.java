@@ -2,6 +2,7 @@ package com.pascalnb.eddie.components.setting.set;
 
 import com.pascalnb.eddie.EmbedUtil;
 import com.pascalnb.eddie.models.EddieCommand;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.SlashCommandInteraction;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
@@ -23,7 +24,7 @@ public class VariableSetRemoveCommand<T> extends EddieCommand<VariableSetCompone
     }
 
     @Override
-    public void handle(SlashCommandInteraction event) {
+    public void accept(SlashCommandInteractionEvent event) {
         String optionName = getComponent().getOptionData().getName();
         OptionMapping optionMapping = Objects.requireNonNull(event.getOption(optionName));
         T t = getComponent().getMapper().apply(optionMapping);

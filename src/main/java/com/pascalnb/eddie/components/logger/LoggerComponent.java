@@ -5,7 +5,7 @@ import com.pascalnb.eddie.components.setting.TextChannelVariableComponent;
 import com.pascalnb.eddie.components.setting.VariableComponent;
 import com.pascalnb.eddie.models.ComponentConfig;
 import com.pascalnb.eddie.models.EddieComponent;
-import com.pascalnb.eddie.models.RootEddieCommand;
+import com.pascalnb.eddie.models.SimpleEddieCommand;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.User;
@@ -22,8 +22,8 @@ public class LoggerComponent extends EddieComponent implements EddieLogger {
 
         this.channel = createComponent(TextChannelVariableComponent.factory("channel"));
 
-        addCommand(
-            new RootEddieCommand<>(this, "manage-logger", "Logger",
+        register(
+            new SimpleEddieCommand<>(this, "manage-logger", "Logger",
                 Util.spread(
                     channel.getCommands()
                 ),

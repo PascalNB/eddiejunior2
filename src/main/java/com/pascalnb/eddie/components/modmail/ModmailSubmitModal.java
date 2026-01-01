@@ -29,7 +29,7 @@ public class ModmailSubmitModal extends EddieModal<ModmailComponent> {
     }
 
     @Override
-    public Modal getModal() {
+    public Modal getEntity() {
         return Modal.create(getId(), "Create modmail ticket")
             .addComponents(
                 Label.of("Title", "Brief title of your topic",
@@ -56,7 +56,7 @@ public class ModmailSubmitModal extends EddieModal<ModmailComponent> {
     }
 
     @Override
-    public void handle(ModalInteractionEvent event) {
+    public void accept(ModalInteractionEvent event) {
         String title = Objects.requireNonNull(event.getValue("title")).getAsString();
         String message = Objects.requireNonNull(event.getValue("message")).getAsString();
         ModalMapping attachmentsMapping = event.getValue("attachments");

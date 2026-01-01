@@ -1,6 +1,6 @@
 package com.pascalnb.eddie.components.modmail;
 
-import com.pascalnb.eddie.models.EddieMenu;
+import com.pascalnb.eddie.models.EddieMessage;
 import net.dv8tion.jda.api.components.container.Container;
 import net.dv8tion.jda.api.components.container.ContainerChildComponent;
 import net.dv8tion.jda.api.components.mediagallery.MediaGallery;
@@ -18,14 +18,14 @@ import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ModmailTicketMenu extends EddieMenu<ModmailComponent> {
+public class ModmailTicketMessage extends EddieMessage<ModmailComponent> {
 
     private final Member member;
     private final String title;
     private final String message;
     private final List<Message.Attachment> attachments;
 
-    public ModmailTicketMenu(ModmailComponent component, Member member, String title, String message,
+    public ModmailTicketMessage(ModmailComponent component, Member member, String title, String message,
         List<Message.Attachment> attachments) {
         super(component);
         this.member = member;
@@ -35,7 +35,7 @@ public class ModmailTicketMenu extends EddieMenu<ModmailComponent> {
     }
 
     @Override
-    public MessageCreateData getMessage() {
+    public MessageCreateData getEntity() {
         List<ContainerChildComponent> components = new ArrayList<>(List.of(
             Section.of(
                 Thumbnail.fromUrl(member.getEffectiveAvatarUrl()),
@@ -64,7 +64,7 @@ public class ModmailTicketMenu extends EddieMenu<ModmailComponent> {
 
         components.add(
             Section.of(
-                getComponent().getArchiveButton().getButton(),
+                getComponent().getArchiveButton().getEntity(),
                 TextDisplay.ofFormat("""
                         Use the following button to archive this ticket.
                         Archiving this thread will close and lock it, only moderators can open it again.

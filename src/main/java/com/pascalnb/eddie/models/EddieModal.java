@@ -1,27 +1,22 @@
 package com.pascalnb.eddie.models;
 
-import com.pascalnb.eddie.Handler;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.modals.Modal;
 
-public abstract class EddieModal<T extends IEddieComponent> implements Handler<ModalInteractionEvent> {
-
-    private final T component;
-    private final String id;
+public abstract class EddieModal<T extends EddieComponent> extends EntityComponentHandler<Modal, ModalInteractionEvent, T> {
 
     public EddieModal(T component, String id) {
-        this.component = component;
-        this.id = id;
+        super(component, id);
     }
 
-    public abstract Modal getModal();
-
-    public T getComponent() {
-        return component;
+    @Override
+    public Class<ModalInteractionEvent> getType() {
+        return ModalInteractionEvent.class;
     }
 
-    public String getId() {
-        return id;
+    @Override
+    public Class<Modal> getEntityType() {
+        return Modal.class;
     }
 
 }

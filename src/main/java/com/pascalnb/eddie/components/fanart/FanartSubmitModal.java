@@ -23,7 +23,7 @@ public class FanartSubmitModal extends EddieModal<FanartComponent> {
     }
 
     @Override
-    public Modal getModal() {
+    public Modal getEntity() {
         return Modal.create(getId(), "Submit fanart")
             .addComponents(
                 Label.of("Title", "Brief title of your post",
@@ -50,7 +50,7 @@ public class FanartSubmitModal extends EddieModal<FanartComponent> {
     }
 
     @Override
-    public void handle(ModalInteractionEvent event) {
+    public void accept(ModalInteractionEvent event) {
         String title = Objects.requireNonNull(event.getValue("title")).getAsString();
         ModalMapping descriptionMapping = event.getValue("description");
         String description;

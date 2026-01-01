@@ -3,6 +3,7 @@ package com.pascalnb.eddie.components;
 import com.pascalnb.eddie.EmbedUtil;
 import com.pascalnb.eddie.models.EddieCommand;
 import com.pascalnb.eddie.models.EddieComponent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.SlashCommandInteraction;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
@@ -15,12 +16,7 @@ public class StopCommand<T extends EddieComponent & RunnableComponent> extends E
     }
 
     @Override
-    public List<OptionData> getOptions() {
-        return List.of();
-    }
-
-    @Override
-    public void handle(SlashCommandInteraction event) {
+    public void accept(SlashCommandInteractionEvent event) {
         getComponent().stop();
         getComponent().getLogger().info(event.getUser(), "Stopped `%s`", getComponent().getRunnableTitle());
         event.replyEmbeds(EmbedUtil.ok("%s stopped", getComponent().getRunnableTitle()).build()).queue();
