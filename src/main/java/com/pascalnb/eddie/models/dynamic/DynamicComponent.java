@@ -1,22 +1,19 @@
 package com.pascalnb.eddie.models.dynamic;
 
-import com.pascalnb.eddie.models.Handler;
+import com.pascalnb.eddie.models.EventSubscriber;
 import com.pascalnb.eddie.models.*;
 import net.dv8tion.jda.api.events.GenericEvent;
-import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 
 import java.util.function.BiFunction;
 
 public abstract class DynamicComponent<T extends DynamicComponent<T>> extends EddieComponent {
 
-    private final DynamicListenerChild dynamic;
+    private final DynamicRegister dynamic;
 
-    public DynamicComponent(ComponentConfig config, DynamicListenerChild dynamicListenerChild) {
+    public DynamicComponent(ComponentConfig config, DynamicRegister dynamicRegister) {
         super(config);
-        this.dynamic = dynamicListenerChild;
+        this.dynamic = dynamicRegister;
     }
-
-    public abstract MessageCreateData getMessage();
 
     public T createDynamicComponent(DynamicComponentFactory<T> factory) {
         return factory.apply(getConfig(), this.dynamic);
@@ -27,18 +24,12 @@ public abstract class DynamicComponent<T extends DynamicComponent<T>> extends Ed
         return (T) this;
     }
 
-    public abstract DynamicComponentFactory<T> getCloningFactory();
-
-    public T copy() {
-        return getCloningFactory().apply(getConfig(), dynamic);
-    }
-
-    public DynamicListenerChild getDynamic() {
+    public DynamicRegister getDynamic() {
         return dynamic;
     }
 
-    public <V extends GenericEvent, R extends Handler<V>> R createDynamic(String customId, BiFunction<T, String, R> provider) {
-        return this.dynamic.createDynamic(customId, i -> provider.apply(self(), i));
+    public <V extends GenericEvent, R extends EventSubscriber<V>> R createDynamic(String customId, BiFunction<T, String, R> provider) {
+        return this.dynamic.registerDynamic(customId, i -> provider.apply(self(), i));
     }
 
     public String getDynamicId() {

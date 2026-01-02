@@ -1,8 +1,10 @@
 package com.pascalnb.eddie.models.dynamic;
 
-import com.pascalnb.eddie.models.ComponentHandler;
+import com.pascalnb.eddie.models.ComponentProvider;
 import com.pascalnb.eddie.EmbedUtil;
-import com.pascalnb.eddie.models.Handler;
+import com.pascalnb.eddie.models.EddieComponent;
+import com.pascalnb.eddie.models.EddieComponentFactory;
+import com.pascalnb.eddie.models.EventSubscriber;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.callbacks.IMessageEditCallback;
@@ -13,9 +15,10 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.function.BiFunction;
 
-public interface DynamicHandler<T extends IMessageEditCallback & IReplyCallback & GenericEvent,
-    R extends DynamicComponent<R>> extends ComponentHandler<T, R> {
+public interface UpdatingSubcomponent<T extends IMessageEditCallback & IReplyCallback & GenericEvent,
+    R extends EddieComponent & UpdatingComponent<R>> extends EventSubscriber<T>, ComponentProvider<R> {
 
+    @Override
     default void accept(T event) {
         event.deferEdit().queue(hook -> {
             R newComponent = apply(event, hook);
@@ -36,13 +39,8 @@ public interface DynamicHandler<T extends IMessageEditCallback & IReplyCallback 
 
     @Nullable R apply(T t, InteractionHook hook);
 
-    default R createComponent(DynamicComponentFactory<R> factory) {
-        return getComponent().createDynamicComponent(factory);
-    }
-
-    default <V extends GenericEvent, U extends Handler<V>> U createDynamic(String customId,
-        BiFunction<R, String, U> provider) {
-        return getComponent().createDynamic(customId, provider);
+    default R createComponent(EddieComponentFactory<R> factory) {
+        return getComponent().createComponent(factory);
     }
 
 }

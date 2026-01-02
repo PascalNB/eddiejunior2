@@ -1,8 +1,8 @@
 package com.pascalnb.eddie.models.dynamic;
 
 import com.pascalnb.eddie.models.EddieComponent;
-import com.pascalnb.eddie.models.EntityComponentHandler;
-import com.pascalnb.eddie.models.Handler;
+import com.pascalnb.eddie.models.EddieSubcomponentBase;
+import com.pascalnb.eddie.models.EventSubscriber;
 import com.pascalnb.eddie.listeners.JDAEventHandler;
 import net.dv8tion.jda.api.components.buttons.Button;
 import net.dv8tion.jda.api.events.GenericEvent;
@@ -12,20 +12,20 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
-public class DynamicListener extends EntityComponentHandler<Void, GenericEvent, EddieComponent> {
+public class DynamicSubcomponent extends EddieSubcomponentBase<Void, GenericEvent, EddieComponent> {
 
     private final JDAEventHandler jdaEventHandlerListener;
-    private final Map<String, DynamicChildComponent> children = new HashMap<>();
+    private final Map<String, Child> children = new HashMap<>();
     private long index = 0;
 
-    public DynamicListener( String id) {
+    public DynamicSubcomponent(String id) {
         super(null, id);
         this.jdaEventHandlerListener = new JDAEventHandler(null);
     }
 
-    public DynamicListenerChild createInstance() {
+    public DynamicRegister createInstance() {
         String childId = createChildId();
-        DynamicChildComponent child = new DynamicChildComponent(this, childId);
+        Child child = new Child(this, childId);
         this.children.put(childId, child);
         return child;
     }
@@ -37,7 +37,7 @@ public class DynamicListener extends EntityComponentHandler<Void, GenericEvent, 
     private String createEntityId(String childId, String suffix) {
         String newId = childId + "_" + suffix;
         if (newId.length() > Button.ID_MAX_LENGTH) {
-            throw new IllegalArgumentException("Button id too long");
+            throw new IllegalArgumentException("Entity ID too long");
         }
         return newId;
     }
@@ -52,7 +52,7 @@ public class DynamicListener extends EntityComponentHandler<Void, GenericEvent, 
             if (listener.getIdProvider() == null) {
                 return;
             }
-            DynamicChildComponent child = getChildForInteractionId(listener.getIdProvider().apply(event));
+            Child child = getChildForInteractionId(listener.getIdProvider().apply(event));
             if (child != null) {
                 child.accept(event);
             }
@@ -64,7 +64,7 @@ public class DynamicListener extends EntityComponentHandler<Void, GenericEvent, 
         return GenericEvent.class;
     }
 
-    private @Nullable DynamicChildComponent getChildForInteractionId(String interactionId) {
+    private @Nullable DynamicSubcomponent.Child getChildForInteractionId(String interactionId) {
         if (!interactionId.startsWith(getId())) {
             return null;
         }
@@ -85,19 +85,19 @@ public class DynamicListener extends EntityComponentHandler<Void, GenericEvent, 
         return Void.class;
     }
 
-    private static class DynamicChildComponent extends JDAEventHandler implements DynamicListenerChild {
+    private static class Child extends JDAEventHandler implements DynamicRegister {
 
-        private final DynamicListener dynamicListener;
+        private final DynamicSubcomponent dynamicSubcomponent;
 
-        public DynamicChildComponent(DynamicListener dynamicListener, String id) {
+        public Child(DynamicSubcomponent dynamicSubcomponent, String id) {
             super(id);
-            this.dynamicListener = dynamicListener;
+            this.dynamicSubcomponent = dynamicSubcomponent;
         }
 
         @Override
-        public <T extends GenericEvent, R extends Handler<T>> R createDynamic(String customId,
+        public <T extends GenericEvent, R extends EventSubscriber<T>> R registerDynamic(String customId,
             Function<String, R> provider) {
-            String entityId = dynamicListener.createEntityId(getId(), customId);
+            String entityId = dynamicSubcomponent.createEntityId(getId(), customId);
             R handler = provider.apply(entityId);
             addHandler(handler);
             return handler;

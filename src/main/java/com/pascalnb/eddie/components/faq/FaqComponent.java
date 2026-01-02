@@ -4,14 +4,14 @@ import com.pascalnb.eddie.URLUtil;
 import com.pascalnb.eddie.Util;
 import com.pascalnb.eddie.components.StatusCommand;
 import com.pascalnb.eddie.components.StatusComponent;
-import com.pascalnb.eddie.models.dynamic.DynamicListener;
+import com.pascalnb.eddie.models.EddieCommand;
+import com.pascalnb.eddie.models.dynamic.DynamicSubcomponent;
 import com.pascalnb.eddie.components.faq.edit.FaqEditComponent;
 import com.pascalnb.eddie.components.setting.Variable;
 import com.pascalnb.eddie.components.setting.set.VariableSet;
 import com.pascalnb.eddie.exceptions.CommandException;
 import com.pascalnb.eddie.models.ComponentConfig;
 import com.pascalnb.eddie.models.EddieComponent;
-import com.pascalnb.eddie.models.SimpleEddieCommand;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.components.Component;
 import net.dv8tion.jda.api.components.actionrow.ActionRow;
@@ -34,7 +34,7 @@ public class FaqComponent extends EddieComponent implements StatusComponent {
 
     private final FaqSelector selector;
     private final FaqMessageModal messageModal = new FaqMessageModal(this);
-    private final DynamicListener dynamicListener = new DynamicListener("faq");
+    private final DynamicSubcomponent dynamicSubcomponent = new DynamicSubcomponent("faq");
 
     public FaqComponent(ComponentConfig config) {
         super(config);
@@ -61,13 +61,13 @@ public class FaqComponent extends EddieComponent implements StatusComponent {
         this.selector.update();
 
         register(
-            new SimpleEddieCommand<>(this, "faq", "FAQ",
+            new EddieCommand<>(this, "faq", "FAQ",
                 Util.spread(
                     new StatusCommand<>(this)
                 ),
                 Permission.BAN_MEMBERS
             ),
-            new SimpleEddieCommand<>(this, "manage-faq", "FAQ",
+            new EddieCommand<>(this, "manage-faq", "FAQ",
                 Util.spread(
                     new FaqMessageCommand(this),
                     new FaqEditCommand(this)
@@ -76,7 +76,7 @@ public class FaqComponent extends EddieComponent implements StatusComponent {
             ),
             selector,
             messageModal,
-            dynamicListener
+            dynamicSubcomponent
         );
     }
 
@@ -122,11 +122,11 @@ public class FaqComponent extends EddieComponent implements StatusComponent {
     }
 
     public FaqEditComponent createEditMenu() {
-        return createComponent(FaqEditComponent.factory(this, dynamicListener.createInstance(), getQuestions()));
+        return createComponent(FaqEditComponent.factory(this, dynamicSubcomponent.createInstance(), getQuestions()));
     }
 
     public void deregisterEditMenu(FaqEditComponent editComponent) {
-        dynamicListener.removeInstance(editComponent.getDynamicId());
+        dynamicSubcomponent.removeInstance(editComponent.getDynamicId());
     }
 
     public Collection<Question> getQuestions() {

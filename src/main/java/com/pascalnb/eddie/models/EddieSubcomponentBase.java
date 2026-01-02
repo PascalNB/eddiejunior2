@@ -2,13 +2,13 @@ package com.pascalnb.eddie.models;
 
 import net.dv8tion.jda.api.events.GenericEvent;
 
-public abstract class EntityComponentHandler<E, T extends GenericEvent, R extends EddieComponent>
-    implements EntityProvider<E>, ComponentHandler<T, R> {
+public abstract class EddieSubcomponentBase<E, T extends GenericEvent, R extends EddieComponent>
+    implements EddieSubcomponent<E, T, R> {
 
     private final R component;
     private final String id;
 
-    public EntityComponentHandler(R component, String id) {
+    public EddieSubcomponentBase(R component, String id) {
         this.component = component;
         this.id = id;
     }

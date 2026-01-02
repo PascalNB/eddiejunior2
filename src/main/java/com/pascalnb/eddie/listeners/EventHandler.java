@@ -1,13 +1,13 @@
 package com.pascalnb.eddie.listeners;
 
-import com.pascalnb.eddie.models.Handler;
+import com.pascalnb.eddie.models.EventSubscriber;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.internal.utils.ClassWalker;
 
 import java.util.*;
 import java.util.function.Function;
 
-public class EventHandler implements Handler<GenericEvent> {
+public class EventHandler implements EventSubscriber<GenericEvent> {
 
     private final String id;
     private final Map<Class<? extends GenericEvent>, HandlerCollection<GenericEvent>> listeners = new HashMap<>();
@@ -25,14 +25,14 @@ public class EventHandler implements Handler<GenericEvent> {
         listeners.put(clazz, new GenericHandlerCollection<>());
     }
 
-    public <T extends GenericEvent> void addHandler(Handler<T> handler) {
-        Class<T> clazz = handler.getType();
+    public <T extends GenericEvent> void addHandler(EventSubscriber<T> eventSubscriber) {
+        Class<T> clazz = eventSubscriber.getType();
         // noinspection unchecked
         HandlerCollection<T> listener = (HandlerCollection<T>) listeners.get(clazz);
         if (listener == null) {
             throw new IllegalArgumentException("Unknown handler for type: " + clazz);
         }
-        listener.addListener(handler.getId(), handler);
+        listener.addListener(eventSubscriber.getId(), eventSubscriber);
     }
 
     public Collection<HandlerCollection<GenericEvent>> getHandlers(Class<? extends GenericEvent> clazz) {

@@ -2,10 +2,11 @@ package com.pascalnb.eddie.components.faq.edit;
 
 import com.pascalnb.eddie.models.dynamic.DynamicComponent;
 import com.pascalnb.eddie.models.dynamic.DynamicComponentFactory;
-import com.pascalnb.eddie.models.dynamic.DynamicListenerChild;
+import com.pascalnb.eddie.models.dynamic.DynamicRegister;
 import com.pascalnb.eddie.components.faq.FaqAnswerMessage;
 import com.pascalnb.eddie.components.faq.FaqComponent;
 import com.pascalnb.eddie.models.*;
+import com.pascalnb.eddie.models.dynamic.UpdatingComponent;
 import net.dv8tion.jda.api.components.actionrow.ActionRow;
 import net.dv8tion.jda.api.components.actionrow.ActionRowChildComponent;
 import net.dv8tion.jda.api.components.container.Container;
@@ -23,7 +24,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
 
-public class FaqEditComponent extends DynamicComponent<FaqEditComponent> {
+public class FaqEditComponent extends DynamicComponent<FaqEditComponent> implements UpdatingComponent<FaqEditComponent> {
 
     private final FaqComponent component;
     private final List<FaqComponent.Question> questions;
@@ -37,12 +38,12 @@ public class FaqEditComponent extends DynamicComponent<FaqEditComponent> {
     private final FaqEditSelectMenu editSelectMenu;
     private final FaqCancelButton cancelButton;
 
-    public FaqEditComponent(ComponentConfig config, FaqComponent component, DynamicListenerChild dynamic,
+    public FaqEditComponent(ComponentConfig config, FaqComponent component, DynamicRegister dynamic,
         Collection<FaqComponent.Question> questions) {
         this(config, component, dynamic, questions, null, List.of());
     }
 
-    public FaqEditComponent(ComponentConfig config, FaqComponent component, DynamicListenerChild dynamic,
+    public FaqEditComponent(ComponentConfig config, FaqComponent component, DynamicRegister dynamic,
         Collection<FaqComponent.Question> questions, @Nullable FaqComponent.Question selectedQuestion,
         Collection<FaqComponent.Question> changes) {
         super(config, dynamic);
@@ -74,16 +75,22 @@ public class FaqEditComponent extends DynamicComponent<FaqEditComponent> {
         return changes;
     }
 
-    public static EddieComponentFactory<FaqEditComponent> factory(FaqComponent component, DynamicListenerChild dynamic,
+    public static EddieComponentFactory<FaqEditComponent> factory(FaqComponent component, DynamicRegister dynamic,
         Collection<FaqComponent.Question> questions) {
         return config -> new FaqEditComponent(config, component, dynamic, questions);
     }
 
-    public DynamicComponentFactory<FaqEditComponent> dynamicFactory(Collection<FaqComponent.Question> questions,
+    public static EddieComponentFactory<FaqEditComponent> factory(FaqComponent component, DynamicRegister dynamic,
+        Collection<FaqComponent.Question> questions,
         @Nullable FaqComponent.Question selectedQuestion,
         Collection<FaqComponent.Question> changes) {
-        return (config, dynamic) ->
-            new FaqEditComponent(config, this.component, dynamic, questions, selectedQuestion, changes);
+        return config -> new FaqEditComponent(config, component, dynamic, questions, selectedQuestion, changes);
+    }
+
+    public EddieComponentFactory<FaqEditComponent> factory(Collection<FaqComponent.Question> questions,
+        @Nullable FaqComponent.Question selectedQuestion,
+        Collection<FaqComponent.Question> changes) {
+        return factory(this.component, getDynamic(), questions, selectedQuestion, changes);
     }
 
     public void submit(Consumer<@Nullable Message> callback) {
@@ -95,8 +102,8 @@ public class FaqEditComponent extends DynamicComponent<FaqEditComponent> {
     }
 
     @Override
-    public DynamicComponentFactory<FaqEditComponent> getCloningFactory() {
-        return dynamicFactory(this.questions, this.selectedQuestion, this.changes);
+    public EddieComponentFactory<FaqEditComponent> getCloningFactory() {
+        return factory(this.questions, this.selectedQuestion, this.changes);
     }
 
     @Override
@@ -161,6 +168,11 @@ public class FaqEditComponent extends DynamicComponent<FaqEditComponent> {
             .useComponentsV2()
             .setComponents(container)
             .build();
+    }
+
+    @Override
+    public FaqEditComponent getComponent() {
+        return this;
     }
 
 }

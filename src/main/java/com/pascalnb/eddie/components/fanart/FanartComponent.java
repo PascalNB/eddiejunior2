@@ -8,8 +8,8 @@ import com.pascalnb.eddie.components.setting.TextChannelVariableComponent;
 import com.pascalnb.eddie.components.setting.VariableComponent;
 import com.pascalnb.eddie.exceptions.CommandException;
 import com.pascalnb.eddie.models.ComponentConfig;
+import com.pascalnb.eddie.models.EddieCommand;
 import com.pascalnb.eddie.models.EddieComponent;
-import com.pascalnb.eddie.models.SimpleEddieCommand;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
@@ -39,14 +39,14 @@ public class FanartComponent extends EddieComponent implements StatusComponent {
         this.reviewChannel = createComponent(TextChannelVariableComponent.factory("review-channel"));
 
         register(
-            new SimpleEddieCommand<>(this, "fanart", "Fanart",
+            new EddieCommand<>(this, "fanart", "Fanart",
                 Util.spread(
                     blacklist.getCommands(),
                     new StatusCommand<>(this)
                 ),
                 Permission.BAN_MEMBERS
             ),
-            new SimpleEddieCommand<>(this, "manage-fanart", "Manage fanart",
+            new EddieCommand<>(this, "manage-fanart", "Manage fanart",
                 Util.spread(
                     channel.getCommands(),
                     reviewChannel.getCommands(),

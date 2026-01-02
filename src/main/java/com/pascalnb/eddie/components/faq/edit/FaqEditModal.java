@@ -2,7 +2,7 @@ package com.pascalnb.eddie.components.faq.edit;
 
 import com.pascalnb.eddie.EmbedUtil;
 import com.pascalnb.eddie.Util;
-import com.pascalnb.eddie.models.dynamic.DynamicModal;
+import com.pascalnb.eddie.models.dynamic.UpdatingModal;
 import com.pascalnb.eddie.components.faq.FaqComponent;
 import net.dv8tion.jda.api.components.label.Label;
 import net.dv8tion.jda.api.components.textinput.TextInput;
@@ -14,7 +14,7 @@ import net.dv8tion.jda.api.modals.Modal;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FaqEditModal extends DynamicModal<FaqEditComponent> {
+public class FaqEditModal extends UpdatingModal<FaqEditComponent> {
 
     public FaqEditModal(FaqEditComponent component, String id) {
         super(component, id);
@@ -102,7 +102,7 @@ public class FaqEditModal extends DynamicModal<FaqEditComponent> {
         newQuestions.remove(getComponent().getSelectedQuestion());
         newQuestions.add(newQuestion);
 
-        return createComponent(getComponent().dynamicFactory(
+        return createComponent(getComponent().factory(
             newQuestions,
             newQuestion,
             Util.spread(getComponent().getChanges(), newQuestion)

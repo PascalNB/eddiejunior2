@@ -1,6 +1,6 @@
 package com.pascalnb.eddie.components.faq.edit;
 
-import com.pascalnb.eddie.models.dynamic.DynamicButton;
+import com.pascalnb.eddie.models.dynamic.UpdatingButton;
 import com.pascalnb.eddie.components.faq.FaqComponent;
 import net.dv8tion.jda.api.components.buttons.Button;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
@@ -10,7 +10,7 @@ import net.dv8tion.jda.api.interactions.InteractionHook;
 import java.util.ArrayList;
 import java.util.List;
 
-class FaqDeleteButton extends DynamicButton<FaqEditComponent> {
+class FaqDeleteButton extends UpdatingButton<FaqEditComponent> {
 
     public FaqDeleteButton(FaqEditComponent component, String id) {
         super(component, id);
@@ -25,7 +25,7 @@ class FaqDeleteButton extends DynamicButton<FaqEditComponent> {
         List<FaqComponent.Question> newChanges = new ArrayList<>(getComponent().getChanges());
         newChanges.add(question);
 
-        return createComponent(getComponent().dynamicFactory(
+        return createComponent(getComponent().factory(
             newQuestions,
             null,
             newChanges

@@ -1,6 +1,6 @@
 package com.pascalnb.eddie.components.faq.edit;
 
-import com.pascalnb.eddie.models.dynamic.DynamicStringSelector;
+import com.pascalnb.eddie.models.dynamic.UpdatingStringSelector;
 import com.pascalnb.eddie.components.faq.FaqComponent;
 import com.pascalnb.eddie.components.faq.FaqSelector;
 import net.dv8tion.jda.api.components.selections.SelectOption;
@@ -11,7 +11,7 @@ import net.dv8tion.jda.api.interactions.InteractionHook;
 import java.util.List;
 import java.util.Map;
 
-class FaqEditSelectMenu extends DynamicStringSelector<FaqEditComponent> {
+class FaqEditSelectMenu extends UpdatingStringSelector<FaqEditComponent> {
 
     private final Map<String, FaqComponent.Question> mappedQuestions;
     private final List<SelectOption> options;
@@ -26,7 +26,7 @@ class FaqEditSelectMenu extends DynamicStringSelector<FaqEditComponent> {
     @Override
     public FaqEditComponent apply(StringSelectInteractionEvent event, InteractionHook hook) {
         if (event.getValues().isEmpty()) {
-            return createComponent(getComponent().dynamicFactory(
+            return createComponent(getComponent().factory(
                getComponent().getQuestions(),
                null,
                getComponent().getChanges()
@@ -36,7 +36,7 @@ class FaqEditSelectMenu extends DynamicStringSelector<FaqEditComponent> {
         String value = event.getValues().getFirst();
         FaqComponent.Question question = mappedQuestions.get(value);
 
-        return createComponent(getComponent().dynamicFactory(
+        return createComponent(getComponent().factory(
             getComponent().getQuestions(),
             question,
             getComponent().getChanges()

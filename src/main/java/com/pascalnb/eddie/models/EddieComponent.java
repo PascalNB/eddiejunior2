@@ -14,48 +14,48 @@ import java.util.stream.Collectors;
 public abstract class EddieComponent {
 
     private final ComponentConfig config;
-    private final Collection<EntityComponentHandler<?, ?, ?>> handlers = new ArrayList<>();
+    private final Collection<EddieSubcomponent<?, ?, ?>> subcomponents = new ArrayList<>();
 
     public EddieComponent(ComponentConfig config) {
         this.config = config;
     }
 
-    public final void register(EntityComponentHandler<?, ?, ?> handler) {
-        this.handlers.add(handler);
+    public final void register(EddieSubcomponent<?, ?, ?> handler) {
+        this.subcomponents.add(handler);
     }
 
-    public final void register(Collection<? extends EntityComponentHandler<?, ?, ?>> handlers) {
+    public final void register(Collection<? extends EddieSubcomponent<?, ?, ?>> handlers) {
         handlers.forEach(this::register);
     }
 
-    public final void register(EntityComponentHandler<?, ?, ?>... handlers) {
+    public final void register(EddieSubcomponent<?, ?, ?>... handlers) {
         register(List.of(handlers));
     }
 
-    public Collection<EntityComponentHandler<?, ?, ?>> getHandlers() {
-        return handlers;
+    public Collection<EddieSubcomponent<?, ?, ?>> getSubcomponents() {
+        return subcomponents;
     }
 
     public Collection<EddieCommand<?>> getCommands() {
-        return handlers.stream()
+        return subcomponents.stream()
             .filter(handler -> handler instanceof EddieCommand)
             .map(handler -> (EddieCommand<?>) handler)
             .collect(Collectors.toCollection(ArrayList::new));
     }
 
-    public <T> Collection<EntityComponentHandler<T, ?, ?>> getHandlersWithEntityType(Class<T> entityType) {
+    public <T> Collection<EddieSubcomponent<T, ?, ?>> getSubcomponentsWithEntityType(Class<T> entityType) {
         //noinspection unchecked
-        return handlers.stream()
+        return subcomponents.stream()
             .filter(handler -> entityType.isAssignableFrom(handler.getEntityType()))
-            .map(handler -> (EntityComponentHandler<T, ?, ?>) handler)
+            .map(handler -> (EddieSubcomponent<T, ?, ?>) handler)
             .collect(Collectors.toCollection(ArrayList::new));
     }
 
-    public <T extends GenericEvent> Collection<EntityComponentHandler<?, T, ?>> getHandlersWithEventType(Class<T> eventType) {
+    public <T extends GenericEvent> Collection<EddieSubcomponent<?, T, ?>> getSubcomponentsWithEventType(Class<T> eventType) {
         //noinspection unchecked
-        return handlers.stream()
+        return subcomponents.stream()
             .filter(handler -> eventType.isAssignableFrom(handler.getType()))
-            .map(handler -> (EntityComponentHandler<?, T, ?>) handler)
+            .map(handler -> (EddieSubcomponent<?, T, ?>) handler)
             .collect(Collectors.toCollection(ArrayList::new));
     }
 

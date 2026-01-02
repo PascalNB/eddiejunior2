@@ -23,7 +23,7 @@ public class GuildManager extends ComponentLogger implements net.dv8tion.jda.api
     }
 
     public void addComponent(EddieComponent component) {
-        component.getHandlers().forEach(eventHandler::addHandler);
+        component.getSubcomponents().forEach(eventHandler::addHandler);
         if (component instanceof EddieLogger eddieLogger) {
             // Set logger of previous components
             this.logger = eddieLogger;

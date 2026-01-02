@@ -12,7 +12,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-public class EddieCommand<T extends EddieComponent> extends EntityComponentHandler<SlashCommandData,
+public class EddieCommand<T extends EddieComponent> extends EddieSubcomponentBase<SlashCommandData,
     SlashCommandInteractionEvent, T> {
 
     private final String description;
@@ -29,6 +29,13 @@ public class EddieCommand<T extends EddieComponent> extends EntityComponentHandl
         this(component, name, description);
         addPermissions(permissions);
     }
+
+    public EddieCommand(T component, String name, String description,
+        Collection<? extends EddieCommand<?>> subCommands, Permission... permissions) {
+        this(component, name, description, permissions);
+        subCommands.forEach(this::addSubCommand);
+    }
+
 
     public void addPermissions(Permission... permissions) {
         Collections.addAll(this.permissions, permissions);
@@ -123,6 +130,14 @@ public class EddieCommand<T extends EddieComponent> extends EntityComponentHandl
     @Override
     public Class<SlashCommandData> getEntityType() {
         return SlashCommandData.class;
+    }
+
+    public static <T extends EddieComponent> EddieCommand<T> of(T component, String name,
+        String description,
+        Collection<? extends EddieCommand<?>> subCommands, Permission... permissions) {
+        EddieCommand<T> eddieCommand = new EddieCommand<>(component, name, description, permissions);
+        eddieCommand.addSubCommands(new ArrayList<>(subCommands));
+        return eddieCommand;
     }
 
 }

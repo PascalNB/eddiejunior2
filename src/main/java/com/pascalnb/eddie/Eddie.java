@@ -83,7 +83,7 @@ public class Eddie {
         registerCommands(
             guild,
             components.stream()
-                .flatMap(c -> c.getHandlersWithEntityType(CommandData.class).stream()
+                .flatMap(c -> c.getSubcomponentsWithEntityType(CommandData.class).stream()
                     .map(EntityProvider::getEntity)
                 )
                 .toList()

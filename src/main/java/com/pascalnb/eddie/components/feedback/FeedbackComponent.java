@@ -63,7 +63,7 @@ public class FeedbackComponent extends EddieComponent implements RunnableCompone
         this.voiceChannel = createComponent(AudioChannelVariableComponent.factory("voice-channel"));
 
         register(
-            new SimpleEddieCommand<>(this, "feedback", "Feedback",
+            new EddieCommand<>(this, "feedback", "Feedback",
                 Util.spread(
                     new StatusCommand<>(this),
                     new StartCommand<>(this),
@@ -75,7 +75,7 @@ public class FeedbackComponent extends EddieComponent implements RunnableCompone
                 ),
                 Permission.BAN_MEMBERS
             ),
-            new SimpleEddieCommand<>(this, "manage-feedback", "Manage feedback",
+            new EddieCommand<>(this, "manage-feedback", "Manage feedback",
                 Util.spread(
                     websites.getCommands(),
                     submissionChannel.getCommands(),

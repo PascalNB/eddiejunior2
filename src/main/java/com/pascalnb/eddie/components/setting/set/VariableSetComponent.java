@@ -1,10 +1,10 @@
 package com.pascalnb.eddie.components.setting.set;
 
 import com.pascalnb.eddie.models.ComponentConfig;
+import com.pascalnb.eddie.models.EddieCommand;
 import com.pascalnb.eddie.models.EddieComponent;
 import com.pascalnb.eddie.exceptions.CommandException;
 import com.pascalnb.eddie.models.EddieComponentFactory;
-import com.pascalnb.eddie.models.SimpleEddieCommand;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import org.jetbrains.annotations.NotNull;
@@ -29,7 +29,7 @@ public class VariableSetComponent<T> extends EddieComponent {
         this.mapper = mapper;
 
         register(
-            new SimpleEddieCommand<>(this, name, "Set " + this.optionData.getName(), List.of(
+            new EddieCommand<>(this, name, "Set " + this.optionData.getName(), List.of(
                 new VariableSetAddCommand<>(VariableSetComponent.this),
                 new VariableSetRemoveCommand<>(VariableSetComponent.this),
                 new VariableSetShowCommand<>(VariableSetComponent.this),

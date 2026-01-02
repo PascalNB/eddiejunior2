@@ -10,8 +10,8 @@ import com.pascalnb.eddie.components.setting.TextChannelVariableComponent;
 import com.pascalnb.eddie.components.setting.Variable;
 import com.pascalnb.eddie.components.setting.VariableComponent;
 import com.pascalnb.eddie.exceptions.CommandException;
+import com.pascalnb.eddie.models.EddieCommand;
 import com.pascalnb.eddie.models.EddieComponent;
-import com.pascalnb.eddie.models.SimpleEddieCommand;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
@@ -42,7 +42,7 @@ public class ModmailComponent extends EddieComponent implements StatusComponent 
         this.mention = createComponent(RoleVariableComponent.factory("mention"));
 
         register(
-            new SimpleEddieCommand<>(this, "modmail", "Modmail",
+            new EddieCommand<>(this, "modmail", "Modmail",
                 Util.spread(
                     new StatusCommand<>(this),
                     blacklist.getCommands(),
@@ -50,7 +50,7 @@ public class ModmailComponent extends EddieComponent implements StatusComponent 
                 ),
                 Permission.BAN_MEMBERS
             ),
-            new SimpleEddieCommand<>(this, "manage-modmail", "Manage modmail",
+            new EddieCommand<>(this, "manage-modmail", "Manage modmail",
                 Util.spread(
                     channel.getCommands(),
                     mention.getCommands(),
