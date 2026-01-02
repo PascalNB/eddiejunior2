@@ -7,20 +7,13 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.SlashCommandInteraction;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
-
-import java.util.List;
 
 public class FeedbackResetCommand extends EddieCommand<FeedbackComponent> {
 
     public FeedbackResetCommand(FeedbackComponent component) {
         super(component, "reset", "Reset the feedback session for all users or a specific user.");
-    }
-
-    @Override
-    public List<OptionData> getOptions() {
-        return List.of(
+        addOptions(
             new OptionData(OptionType.USER, "user", "The user whose submission should be removed.", false)
         );
     }

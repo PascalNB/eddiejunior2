@@ -6,7 +6,7 @@ import net.dv8tion.jda.api.events.GenericEvent;
 
 import java.util.function.BiFunction;
 
-public abstract class DynamicComponent<T extends DynamicComponent<T>> extends EddieComponent {
+public abstract class DynamicComponent<T extends DynamicComponent<T>> extends EddieComponent implements ComponentProvider<T> {
 
     private final DynamicRegister dynamic;
 
@@ -15,21 +15,12 @@ public abstract class DynamicComponent<T extends DynamicComponent<T>> extends Ed
         this.dynamic = dynamicRegister;
     }
 
-    public T createDynamicComponent(DynamicComponentFactory<T> factory) {
-        return factory.apply(getConfig(), this.dynamic);
-    }
-
-    @SuppressWarnings("unchecked")
-    protected T self() {
-        return (T) this;
-    }
-
     public DynamicRegister getDynamic() {
         return dynamic;
     }
 
     public <V extends GenericEvent, R extends EventSubscriber<V>> R createDynamic(String customId, BiFunction<T, String, R> provider) {
-        return this.dynamic.registerDynamic(customId, i -> provider.apply(self(), i));
+        return this.dynamic.registerDynamic(customId, i -> provider.apply(getComponent(), i));
     }
 
     public String getDynamicId() {

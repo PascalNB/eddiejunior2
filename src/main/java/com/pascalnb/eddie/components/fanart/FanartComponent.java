@@ -39,21 +39,22 @@ public class FanartComponent extends EddieComponent implements StatusComponent {
         this.reviewChannel = createComponent(TextChannelVariableComponent.factory("review-channel"));
 
         register(
-            new EddieCommand<>(this, "fanart", "Fanart",
-                Util.spread(
-                    blacklist.getCommands(),
-                    new StatusCommand<>(this)
+            new EddieCommand<>(this, "fanart", "Fanart", Permission.BAN_MEMBERS)
+                .addSubCommands(
+                    Util.spread(
+                        blacklist.getCommands(),
+                        new StatusCommand<>(this)
+                    )
                 ),
-                Permission.BAN_MEMBERS
-            ),
-            new EddieCommand<>(this, "manage-fanart", "Manage fanart",
-                Util.spread(
-                    channel.getCommands(),
-                    reviewChannel.getCommands(),
-                    new FanartMessageCommand(this)
+            new EddieCommand<>(this, "manage-fanart", "Manage fanart", Permission.BAN_MEMBERS,
+                Permission.MANAGE_SERVER)
+                .addSubCommands(
+                    Util.spread(
+                        channel.getCommands(),
+                        reviewChannel.getCommands(),
+                        new FanartMessageCommand(this)
+                    )
                 ),
-                Permission.BAN_MEMBERS, Permission.MANAGE_SERVER
-            ),
             submitButton,
             approveButton,
             rejectButton,
@@ -75,17 +76,17 @@ public class FanartComponent extends EddieComponent implements StatusComponent {
         return reviewChannel.getValue().sendMessage(submissionMessage);
     }
 
+    private void validateMember(Member member) throws CommandException {
+        if (blacklist.contains(member.getUser())) {
+            throw new CommandException("You are banned from creating fanart posts");
+        }
+    }
+
     public RestAction<Message> forwardSubmission(MessageCreateData message) throws CommandException {
         if (!channel.hasValue()) {
             throw new CommandException("Unable to forward submission");
         }
         return channel.getValue().sendMessage(message);
-    }
-
-    private void validateMember(Member member) throws CommandException {
-        if (blacklist.contains(member.getUser())) {
-            throw new CommandException("You are banned from creating fanart posts");
-        }
     }
 
     public FanartSubmitButton getSubmitButton() {

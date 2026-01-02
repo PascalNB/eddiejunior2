@@ -4,10 +4,6 @@ import com.pascalnb.eddie.EmbedUtil;
 import com.pascalnb.eddie.models.EddieCommand;
 import com.pascalnb.eddie.exceptions.CommandException;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-import net.dv8tion.jda.api.interactions.commands.SlashCommandInteraction;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
-
-import java.util.List;
 
 public class VariableRemoveCommand<T> extends EddieCommand<VariableComponent<T>> {
 

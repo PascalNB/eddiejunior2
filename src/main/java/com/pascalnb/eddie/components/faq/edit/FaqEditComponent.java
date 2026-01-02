@@ -1,7 +1,6 @@
 package com.pascalnb.eddie.components.faq.edit;
 
 import com.pascalnb.eddie.models.dynamic.DynamicComponent;
-import com.pascalnb.eddie.models.dynamic.DynamicComponentFactory;
 import com.pascalnb.eddie.models.dynamic.DynamicRegister;
 import com.pascalnb.eddie.components.faq.FaqAnswerMessage;
 import com.pascalnb.eddie.components.faq.FaqComponent;

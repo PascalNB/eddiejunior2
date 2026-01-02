@@ -4,11 +4,11 @@ import com.pascalnb.eddie.models.ComponentConfig;
 import com.pascalnb.eddie.models.EddieCommand;
 import com.pascalnb.eddie.models.EddieComponent;
 import com.pascalnb.eddie.exceptions.CommandException;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -33,11 +33,12 @@ public class VariableComponent<T> extends EddieComponent {
         this.mapper = mapper;
 
         register(
-            new EddieCommand<>(this, name, "Set " + optionData.getName(), List.of(
-                new VariableSetCommand<>(VariableComponent.this),
-                new VariableRemoveCommand<>(VariableComponent.this),
-                new VariableViewCommand<>(VariableComponent.this)
-            ))
+            new EddieCommand<>(this, name, "Set " + optionData.getName(), Permission.BAN_MEMBERS)
+                .addSubCommands(
+                    new VariableSetCommand<>(VariableComponent.this),
+                    new VariableRemoveCommand<>(VariableComponent.this),
+                    new VariableViewCommand<>(VariableComponent.this)
+                )
         );
     }
 

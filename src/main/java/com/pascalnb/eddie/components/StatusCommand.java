@@ -6,8 +6,6 @@ import com.pascalnb.eddie.components.setting.set.VariableSetComponent;
 import com.pascalnb.eddie.models.EddieCommand;
 import com.pascalnb.eddie.models.EddieComponent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-import net.dv8tion.jda.api.interactions.commands.SlashCommandInteraction;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -46,6 +44,12 @@ public class StatusCommand<T extends EddieComponent & StatusComponent> extends E
             @Override
             public StatusComponent.StatusCollector addComponent(StatusComponent statusComponent) {
                 components.add(statusComponent);
+                return this;
+            }
+
+            @Override
+            public StatusComponent.StatusCollector addBoolean(String name, boolean value) {
+                status.add(Map.entry(name, value ? "✅" : "❌"));
                 return this;
             }
         });

@@ -5,21 +5,15 @@ import com.pascalnb.eddie.models.EddieCommand;
 import com.pascalnb.eddie.exceptions.CommandException;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
-import net.dv8tion.jda.api.interactions.commands.SlashCommandInteraction;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
-
-import java.util.List;
 import java.util.Objects;
 
 public class VariableSetCommand<T> extends EddieCommand<VariableComponent<T>> {
 
     public VariableSetCommand(VariableComponent<T> component) {
         super(component, "set", "Set " + component.getName());
-    }
-
-    @Override
-    public List<OptionData> getOptions() {
-        return List.of(getComponent().getOptionData());
+        addOptions(
+            getComponent().getOptionData()
+        );
     }
 
     @Override

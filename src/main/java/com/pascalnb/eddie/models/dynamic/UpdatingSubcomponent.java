@@ -13,8 +13,6 @@ import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import net.dv8tion.jda.api.utils.messages.MessageEditData;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.function.BiFunction;
-
 public interface UpdatingSubcomponent<T extends IMessageEditCallback & IReplyCallback & GenericEvent,
     R extends EddieComponent & UpdatingComponent<R>> extends EventSubscriber<T>, ComponentProvider<R> {
 

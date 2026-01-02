@@ -14,6 +14,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class FaqAddModal extends UpdatingModal<FaqEditComponent> {
 
@@ -64,11 +65,11 @@ public class FaqAddModal extends UpdatingModal<FaqEditComponent> {
 
     @Override
     public @Nullable FaqEditComponent apply(ModalInteractionEvent event, InteractionHook hook) {
-        String question = event.getValue("question").getAsString();
-        String description = event.getValue("description").getAsString();
-        String answer = event.getValue("answer").getAsString();
-        String emoji = event.getValue("emoji").getAsString();
-        String indexString = event.getValue("index").getAsString();
+        String question = Objects.requireNonNull(event.getValue("question")).getAsString();
+        String description = Objects.requireNonNull(event.getValue("description")).getAsString();
+        String answer = Objects.requireNonNull(event.getValue("answer")).getAsString();
+        String emoji = Objects.requireNonNull(event.getValue("emoji")).getAsString();
+        String indexString = Objects.requireNonNull(event.getValue("index")).getAsString();
 
         if (description.isBlank()) {
             description = null;

@@ -3,6 +3,7 @@ package com.pascalnb.eddie.components.setting;
 import com.pascalnb.eddie.database.ComponentDatabaseManager;
 import com.pascalnb.eddie.exceptions.CommandException;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -12,11 +13,11 @@ public class Variable<T> {
     private final String name;
     private final Function<T, String> pretty;
     private final Function<T, String> serializer;
-    private T value;
     private final ComponentDatabaseManager db;
+    private @Nullable T value;
 
     public Variable(ComponentDatabaseManager db, String name, Function<@NotNull T, String> pretty,
-        Function<T, String> serializer, Function<String, T> deserializer, T defaultValue) {
+        Function<@NotNull T, String> serializer, Function<String, T> deserializer, T defaultValue) {
         this.db = db;
         this.name = name;
         this.pretty = pretty;
@@ -29,7 +30,7 @@ public class Variable<T> {
     }
 
     public Variable(ComponentDatabaseManager db, String name, Function<@NotNull T, String> pretty,
-        Function<T, String> serializer, Function<String, T> deserializer) {
+        Function<@NotNull T, String> serializer, Function<String, T> deserializer) {
         this(db, name, pretty, serializer, deserializer, null);
     }
 
@@ -48,11 +49,11 @@ public class Variable<T> {
         return name;
     }
 
-    public T getValue() {
+    public @Nullable T getValue() {
         return value;
     }
 
-    public void setValue(T value) throws CommandException {
+    public void setValue(@Nullable T value) throws CommandException {
         checkPreconditions(value);
         this.value = value;
         if (value == null) {
@@ -62,14 +63,14 @@ public class Variable<T> {
         }
     }
 
-    public void apply(Consumer<T> consumer) {
-        if (hasValue()) {
+    public void apply(Consumer<@NotNull T> consumer) {
+        if (value != null) {
             consumer.accept(value);
         }
     }
 
     @SuppressWarnings({"RedundantThrows", "unused"})
-    public void checkPreconditions(T t) throws CommandException {
+    public void checkPreconditions(@Nullable T t) throws CommandException {
     }
 
 }

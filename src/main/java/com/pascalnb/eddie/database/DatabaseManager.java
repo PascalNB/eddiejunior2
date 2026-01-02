@@ -2,17 +2,14 @@ package com.pascalnb.eddie.database;
 
 import com.pascalnb.dbwrapper.Mapper;
 import com.pascalnb.dbwrapper.Query;
-import com.pascalnb.dbwrapper.StringMapper;
 import com.pascalnb.dbwrapper.action.DatabaseAction;
 import com.pascalnb.dbwrapper.action.Promise;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.CheckReturnValue;
-import javax.xml.crypto.Data;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class DatabaseManager {
 

@@ -20,6 +20,7 @@ import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 
 import java.util.List;
+import java.util.Objects;
 
 public class ModmailComponent extends EddieComponent implements StatusComponent {
 
@@ -42,22 +43,23 @@ public class ModmailComponent extends EddieComponent implements StatusComponent 
         this.mention = createComponent(RoleVariableComponent.factory("mention"));
 
         register(
-            new EddieCommand<>(this, "modmail", "Modmail",
-                Util.spread(
-                    new StatusCommand<>(this),
-                    blacklist.getCommands(),
-                    new ModmailArchiveCommand(this)
+            new EddieCommand<>(this, "modmail", "Modmail", Permission.BAN_MEMBERS)
+                .addSubCommands(
+                    Util.spread(
+                        new StatusCommand<>(this),
+                        blacklist.getCommands(),
+                        new ModmailArchiveCommand(this)
+                    )
                 ),
-                Permission.BAN_MEMBERS
-            ),
             new EddieCommand<>(this, "manage-modmail", "Manage modmail",
-                Util.spread(
-                    channel.getCommands(),
-                    mention.getCommands(),
-                    new ModmailMessageCommand(this)
+                Permission.BAN_MEMBERS, Permission.MANAGE_SERVER)
+                .addSubCommands(
+                    Util.spread(
+                        channel.getCommands(),
+                        mention.getCommands(),
+                        new ModmailMessageCommand(this)
+                    )
                 ),
-                Permission.BAN_MEMBERS, Permission.MANAGE_SERVER
-            ),
             submitButton,
             archiveButton,
             messageModal,
@@ -74,7 +76,7 @@ public class ModmailComponent extends EddieComponent implements StatusComponent 
 
         String topic;
         synchronized (threadId) {
-            threadId.setValue(threadId.getValue() + 1);
+            threadId.setValue(Objects.requireNonNull(threadId.getValue()) + 1);
             topic = String.format("t%d-%s", this.threadId.getValue(), title);
             topic = topic.substring(0, Math.min(topic.length(), 100));
         }

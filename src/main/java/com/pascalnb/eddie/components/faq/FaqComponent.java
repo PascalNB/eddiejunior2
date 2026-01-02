@@ -61,19 +61,18 @@ public class FaqComponent extends EddieComponent implements StatusComponent {
         this.selector.update();
 
         register(
-            new EddieCommand<>(this, "faq", "FAQ",
-                Util.spread(
+            new EddieCommand<>(this, "faq", "FAQ", Permission.BAN_MEMBERS)
+                .addSubCommands(
                     new StatusCommand<>(this)
                 ),
-                Permission.BAN_MEMBERS
-            ),
             new EddieCommand<>(this, "manage-faq", "FAQ",
-                Util.spread(
-                    new FaqMessageCommand(this),
-                    new FaqEditCommand(this)
+                Permission.BAN_MEMBERS, Permission.MANAGE_SERVER)
+                .addSubCommands(
+                    Util.spread(
+                        new FaqMessageCommand(this),
+                        new FaqEditCommand(this)
+                    )
                 ),
-                Permission.BAN_MEMBERS, Permission.MANAGE_SERVER
-            ),
             selector,
             messageModal,
             dynamicSubcomponent
@@ -125,12 +124,12 @@ public class FaqComponent extends EddieComponent implements StatusComponent {
         return createComponent(FaqEditComponent.factory(this, dynamicSubcomponent.createInstance(), getQuestions()));
     }
 
-    public void deregisterEditMenu(FaqEditComponent editComponent) {
-        dynamicSubcomponent.removeInstance(editComponent.getDynamicId());
-    }
-
     public Collection<Question> getQuestions() {
         return questions.getValues();
+    }
+
+    public void deregisterEditMenu(FaqEditComponent editComponent) {
+        dynamicSubcomponent.removeInstance(editComponent.getDynamicId());
     }
 
     public FaqMessageModal getMessageModal() {

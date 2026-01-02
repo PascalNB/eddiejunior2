@@ -7,17 +7,20 @@ import net.dv8tion.jda.api.interactions.InteractionContextType;
 import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
 import net.dv8tion.jda.api.interactions.commands.build.*;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 public class EddieCommand<T extends EddieComponent> extends EddieSubcomponentBase<SlashCommandData,
     SlashCommandInteractionEvent, T> {
 
     private final String description;
-    private final List<Permission> permissions = new ArrayList<>();
+    private final Set<Permission> permissions = new HashSet<>();
+    private final Collection<OptionData> options = new ArrayList<>();
     private final Collection<EddieCommand<?>> subCommands = new ArrayList<>();
+
+    public EddieCommand(T component, String name, String description, Permission... permissions) {
+        this(component, name, description);
+        addPermissions(permissions);
+    }
 
     public EddieCommand(T component, String name, String description) {
         super(component, name);
@@ -25,28 +28,19 @@ public class EddieCommand<T extends EddieComponent> extends EddieSubcomponentBas
         addPermissions(Permission.USE_APPLICATION_COMMANDS);
     }
 
-    public EddieCommand(T component, String name, String description, Permission... permissions) {
-        this(component, name, description);
-        addPermissions(permissions);
-    }
-
-    public EddieCommand(T component, String name, String description,
-        Collection<? extends EddieCommand<?>> subCommands, Permission... permissions) {
-        this(component, name, description, permissions);
-        subCommands.forEach(this::addSubCommand);
-    }
-
-
-    public void addPermissions(Permission... permissions) {
+    public EddieCommand<T> addPermissions(Permission... permissions) {
         Collections.addAll(this.permissions, permissions);
+        return this;
     }
 
-    public void addSubCommand(EddieCommand<?> subCommand) {
-        this.subCommands.add(subCommand);
-    }
-
-    public void addSubCommands(Collection<EddieCommand<?>> subCommands) {
+    public EddieCommand<T> addSubCommands(Collection<EddieCommand<?>> subCommands) {
         this.subCommands.addAll(subCommands);
+        return this;
+    }
+
+    public EddieCommand<T> addSubCommands(EddieCommand<?>... subCommands) {
+        Collections.addAll(this.subCommands, subCommands);
+        return this;
     }
 
     @Override
@@ -88,7 +82,7 @@ public class EddieCommand<T extends EddieComponent> extends EddieSubcomponentBas
         return description;
     }
 
-    public List<Permission> getPermissions() {
+    public Collection<Permission> getPermissions() {
         return permissions;
     }
 
@@ -100,8 +94,23 @@ public class EddieCommand<T extends EddieComponent> extends EddieSubcomponentBas
         return subCommands;
     }
 
-    public List<OptionData> getOptions() {
-        return List.of();
+    public Collection<OptionData> getOptions() {
+        return options;
+    }
+
+    @Override
+    public Class<SlashCommandData> getEntityType() {
+        return SlashCommandData.class;
+    }
+
+    public EddieCommand<T> addOptions(OptionData... options) {
+        Collections.addAll(this.options, options);
+        return this;
+    }
+
+    public EddieCommand<T> addOptions(Collection<OptionData> options) {
+        this.options.addAll(options);
+        return this;
     }
 
     @Override
@@ -125,19 +134,6 @@ public class EddieCommand<T extends EddieComponent> extends EddieSubcomponentBas
     @Override
     public Class<SlashCommandInteractionEvent> getType() {
         return SlashCommandInteractionEvent.class;
-    }
-
-    @Override
-    public Class<SlashCommandData> getEntityType() {
-        return SlashCommandData.class;
-    }
-
-    public static <T extends EddieComponent> EddieCommand<T> of(T component, String name,
-        String description,
-        Collection<? extends EddieCommand<?>> subCommands, Permission... permissions) {
-        EddieCommand<T> eddieCommand = new EddieCommand<>(component, name, description, permissions);
-        eddieCommand.addSubCommands(new ArrayList<>(subCommands));
-        return eddieCommand;
     }
 
 }

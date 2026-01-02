@@ -14,12 +14,12 @@ public class JDAEventHandler extends EventHandler {
         addCustomIdListener(ButtonInteractionEvent.class);
         addCustomIdListener(StringSelectInteractionEvent.class);
         addCustomIdListener(ModalInteractionEvent.class);
-        addListener(SlashCommandInteractionEvent.class, SlashCommandInteractionEvent::getName);
-        addGenericListener(GenericEvent.class);
+        addEvent(SlashCommandInteractionEvent.class, SlashCommandInteractionEvent::getName);
+        addGenericEvent(GenericEvent.class);
     }
 
     private <T extends GenericEvent & ICustomIdInteraction> void addCustomIdListener(Class<T> clazz) {
-        addListener(clazz, ICustomIdInteraction::getCustomId);
+        addEvent(clazz, ICustomIdInteraction::getCustomId);
     }
 
 }

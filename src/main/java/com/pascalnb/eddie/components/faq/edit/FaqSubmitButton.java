@@ -25,7 +25,7 @@ class FaqSubmitButton extends EddieButton<FaqEditComponent> {
 
     @Override
     public Button getEntity() {
-        return Button.success(getId(), "Submit").withEmoji(Emoji.fromUnicode("✅"));
+        return Button.success(getId(), "Submit").withEmoji(Emoji.fromUnicode("✔️"));
     }
 
     @Override

@@ -24,11 +24,10 @@ public class LoggerComponent extends EddieComponent implements EddieLogger {
 
         register(
             new EddieCommand<>(this, "manage-logger", "Logger",
-                Util.spread(
+                Permission.BAN_MEMBERS, Permission.MANAGE_SERVER)
+                .addSubCommands(
                     channel.getCommands()
-                ),
-                Permission.BAN_MEMBERS, Permission.MANAGE_SERVER
-            )
+                )
         );
     }
 

@@ -20,6 +20,8 @@ public interface StatusComponent {
         StatusCollector addSet(String name, VariableSetComponent<?> variableSet);
         @Contract("_ -> this")
         StatusCollector addComponent(@Nullable StatusComponent supplier);
+        @Contract("_,_ -> this")
+        StatusCollector addBoolean(String name, boolean value);
 
     }
 

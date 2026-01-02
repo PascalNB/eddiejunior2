@@ -63,28 +63,29 @@ public class FeedbackComponent extends EddieComponent implements RunnableCompone
         this.voiceChannel = createComponent(AudioChannelVariableComponent.factory("voice-channel"));
 
         register(
-            new EddieCommand<>(this, "feedback", "Feedback",
-                Util.spread(
-                    new StatusCommand<>(this),
-                    new StartCommand<>(this),
-                    new StopCommand<>(this),
-                    blacklist.getCommands(),
-                    new FeedbackMessageCommand(this),
-                    new FeedbackResetCommand(this),
-                    new FeedbackRemoveCommand(this)
+            new EddieCommand<>(this, "feedback", "Feedback", Permission.BAN_MEMBERS)
+                .addSubCommands(
+                    Util.spread(
+                        new StatusCommand<>(this),
+                        new StartCommand<>(this),
+                        new StopCommand<>(this),
+                        blacklist.getCommands(),
+                        new FeedbackMessageCommand(this),
+                        new FeedbackResetCommand(this),
+                        new FeedbackRemoveCommand(this)
+                    )
                 ),
-                Permission.BAN_MEMBERS
-            ),
             new EddieCommand<>(this, "manage-feedback", "Manage feedback",
-                Util.spread(
-                    websites.getCommands(),
-                    submissionChannel.getCommands(),
-                    chatChannel.getCommands(),
-                    winRole.getCommands(),
-                    voiceChannel.getCommands()
+                Permission.BAN_MEMBERS, Permission.MANAGE_SERVER)
+                .addSubCommands(
+                    Util.spread(
+                        websites.getCommands(),
+                        submissionChannel.getCommands(),
+                        chatChannel.getCommands(),
+                        winRole.getCommands(),
+                        voiceChannel.getCommands()
+                    )
                 ),
-                Permission.BAN_MEMBERS, Permission.MANAGE_SERVER
-            ),
             this.submitButton,
             this.nextButton,
             this.stopButton,
@@ -195,7 +196,7 @@ public class FeedbackComponent extends EddieComponent implements RunnableCompone
             .addVariable("Win role", winRole)
             .addVariable("Voice channel", voiceChannel)
             .addSet("Websites", websites)
-            .addString("Running", String.valueOf(isRunning()))
+            .addBoolean("Running", isRunning())
             .addComponent(session.get());
     }
 

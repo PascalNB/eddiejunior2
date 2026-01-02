@@ -99,7 +99,7 @@ public class DynamicSubcomponent extends EddieSubcomponentBase<Void, GenericEven
             Function<String, R> provider) {
             String entityId = dynamicSubcomponent.createEntityId(getId(), customId);
             R handler = provider.apply(entityId);
-            addHandler(handler);
+            addSubscriber(handler);
             return handler;
         }
 

@@ -1,6 +1,5 @@
 package com.pascalnb.eddie.components.setting.set;
 
-import com.pascalnb.dbwrapper.action.DatabaseAction;
 import com.pascalnb.eddie.database.ComponentDatabaseManager;
 import com.pascalnb.eddie.exceptions.CommandException;
 import org.jetbrains.annotations.NotNull;
@@ -17,7 +16,7 @@ public class VariableSet<T> {
     private final Function<T, String> serializer;
 
     public VariableSet(ComponentDatabaseManager db, String name, Function<@NotNull T, String> pretty,
-        Function<T, String> serializer, Function<String, T> deserializer) {
+        Function<@NotNull T, String> serializer, Function<String, T> deserializer) {
         this.db = db;
         this.name = name;
         this.pretty = pretty;
@@ -49,7 +48,7 @@ public class VariableSet<T> {
         return values;
     }
 
-    public void addValue(T value) throws CommandException {
+    public void addValue(@NotNull T value) throws CommandException {
         checkPreconditions(value);
         if (contains(value)) {
             throw new CommandException("`%s` already contains %s".formatted(getName(), getPrettyValue(value)));
@@ -58,10 +57,10 @@ public class VariableSet<T> {
         db.addSetting(name, serializer.apply(value)).stage();
     }
 
-    public void checkPreconditions(T t) throws CommandException {
+    public void checkPreconditions(@NotNull T t) throws CommandException {
     }
 
-    public boolean contains(T t) {
+    public boolean contains(@NotNull T t) {
         return values.contains(t);
     }
 
@@ -69,7 +68,7 @@ public class VariableSet<T> {
         return name;
     }
 
-    public boolean removeValue(T value) {
+    public boolean removeValue(@NotNull T value) {
         boolean removed = this.values.remove(value);
         if (removed) {
             db.removeSettingValue(name, serializer.apply(value)).stage();

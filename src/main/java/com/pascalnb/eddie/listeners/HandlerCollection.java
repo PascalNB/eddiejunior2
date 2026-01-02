@@ -10,6 +10,4 @@ public interface HandlerCollection<T> extends Consumer<T> {
 
     void addListener(String id, Consumer<T> listener);
 
-
-
 }

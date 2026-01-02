@@ -29,13 +29,21 @@ public class VariableSetComponent<T> extends EddieComponent {
         this.mapper = mapper;
 
         register(
-            new EddieCommand<>(this, name, "Set " + this.optionData.getName(), List.of(
-                new VariableSetAddCommand<>(VariableSetComponent.this),
-                new VariableSetRemoveCommand<>(VariableSetComponent.this),
-                new VariableSetShowCommand<>(VariableSetComponent.this),
-                new VariableSetClearCommand<>(VariableSetComponent.this)
-            ))
+            new EddieCommand<>(this, name, "Set " + this.optionData.getName())
+                .addSubCommands(
+                    new VariableSetAddCommand<>(VariableSetComponent.this),
+                    new VariableSetRemoveCommand<>(VariableSetComponent.this),
+                    new VariableSetShowCommand<>(VariableSetComponent.this),
+                    new VariableSetClearCommand<>(VariableSetComponent.this)
+                )
         );
+    }
+
+    public static <T> EddieComponentFactory<VariableSetComponent<T>> factory(String name, OptionData optionData,
+        Function<OptionMapping, T> mapper, Function<T, String> pretty,
+        Function<T, String> serializer, Function<String, T> deserializer) {
+        return (config) -> new VariableSetComponent<>(config, name, optionData, mapper, pretty,
+            serializer, deserializer);
     }
 
     public boolean isEmpty() {
@@ -75,22 +83,15 @@ public class VariableSetComponent<T> extends EddieComponent {
         this.set.addValue(value);
     }
 
+    public void checkPreconditions(T t) throws CommandException {
+    }
+
     public boolean removeValue(T value) {
         return this.set.removeValue(value);
     }
 
     public void clear() {
         this.set.clear();
-    }
-
-    public void checkPreconditions(T t) throws CommandException {
-    }
-
-    public static <T> EddieComponentFactory<VariableSetComponent<T>> factory(String name, OptionData optionData,
-        Function<OptionMapping, T> mapper, Function<T, String> pretty,
-        Function<T, String> serializer, Function<String, T> deserializer) {
-        return (config) -> new VariableSetComponent<>(config, name, optionData, mapper, pretty,
-            serializer, deserializer);
     }
 
 }

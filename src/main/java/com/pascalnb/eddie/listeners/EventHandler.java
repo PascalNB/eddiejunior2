@@ -16,16 +16,16 @@ public class EventHandler implements EventSubscriber<GenericEvent> {
         this.id = id;
     }
 
-    public <T extends GenericEvent> void addListener(Class<T> clazz, Function<T, String> idProvider) {
+    public <T extends GenericEvent> void addEvent(Class<T> clazz, Function<T, String> idProvider) {
         // noinspection unchecked
         listeners.put(clazz, (MapHandlerCollection<GenericEvent>) new MapHandlerCollection<>(idProvider));
     }
 
-    public <T extends GenericEvent> void addGenericListener(Class<T> clazz) {
+    public <T extends GenericEvent> void addGenericEvent(Class<T> clazz) {
         listeners.put(clazz, new GenericHandlerCollection<>());
     }
 
-    public <T extends GenericEvent> void addHandler(EventSubscriber<T> eventSubscriber) {
+    public <T extends GenericEvent> void addSubscriber(EventSubscriber<T> eventSubscriber) {
         Class<T> clazz = eventSubscriber.getType();
         // noinspection unchecked
         HandlerCollection<T> listener = (HandlerCollection<T>) listeners.get(clazz);
