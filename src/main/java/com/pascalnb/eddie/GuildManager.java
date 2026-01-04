@@ -6,13 +6,13 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.GenericEvent;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 public class GuildManager extends ComponentLogger implements net.dv8tion.jda.api.hooks.EventListener {
 
     private final Guild guild;
-    private final Collection<EddieComponent> components = new ArrayList<>();
+    private final Map<String, EddieComponent> components = new HashMap<>();
     private final EventHandler eventHandler;
     private EddieLogger logger = null;
 
@@ -22,22 +22,22 @@ public class GuildManager extends ComponentLogger implements net.dv8tion.jda.api
         this.eventHandler = new JDAEventHandler(guild.getId());
     }
 
-    public void addComponent(EddieComponent component) {
+    public void addComponent(String componentId, EddieComponent component) {
         component.getSubcomponents().forEach(eventHandler::addSubscriber);
         if (component instanceof EddieLogger eddieLogger) {
             // Set logger of previous components
             this.logger = eddieLogger;
-            components.forEach(cc -> cc.getLogger().setLoggerProvider(logger));
+            components.forEach((__, cc) -> cc.getLogger().setLoggerProvider(logger));
             setLoggerProvider(logger);
         }
         if (this.logger != null) {
             // Set logger of next components
             component.getLogger().setLoggerProvider(this.logger);
         }
-        this.components.add(component);
+        this.components.put(componentId, component);
     }
 
-    public Collection<EddieComponent> getComponents() {
+    public Map<String, EddieComponent> getComponents() {
         return components;
     }
 

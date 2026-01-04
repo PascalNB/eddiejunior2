@@ -13,6 +13,8 @@ import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.time.Instant;
+
 public class LoggerComponent extends EddieComponent implements EddieLogger {
 
     private final VariableComponent<TextChannel> channel;
@@ -57,6 +59,8 @@ public class LoggerComponent extends EddieComponent implements EddieLogger {
                     embed.setFooter(componentId);
                 }
             }
+
+            embed.setTimestamp(Instant.now());
 
             textChannel.sendMessageEmbeds(embed.build()).queue();
         });

@@ -34,7 +34,7 @@ class FaqDeleteButton extends UpdatingButton<FaqEditComponent> {
 
     @Override
     public Button getEntity() {
-        return Button.danger(getId(), "Remove").withEmoji(Emoji.fromUnicode("✖️"));
+        return Button.danger(getId(), "Remove").withEmoji(Emoji.fromUnicode("\uD83D\uDDD1"));
     }
 
 }

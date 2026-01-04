@@ -34,7 +34,7 @@ public class FaqComponent extends EddieComponent implements StatusComponent {
 
     private final FaqSelector selector;
     private final FaqMessageModal messageModal = new FaqMessageModal(this);
-    private final DynamicSubcomponent dynamicSubcomponent = new DynamicSubcomponent("faq");
+    private final DynamicSubcomponent<FaqComponent> dynamicSubcomponent = new DynamicSubcomponent<>(this,"faq");
 
     public FaqComponent(ComponentConfig config) {
         super(config);
@@ -106,7 +106,7 @@ public class FaqComponent extends EddieComponent implements StatusComponent {
                 .setComponents(container.withComponents(childComponents))
                 .build();
             msg.editMessage(editData).queue(newMsg -> {
-                getLogger().info(null, "FAQ message updated (%s)", newMsg.getJumpUrl());
+                getLogger().info("FAQ message updated (%s)", newMsg.getJumpUrl());
                 callback.accept(newMsg);
             });
         });
@@ -126,10 +126,6 @@ public class FaqComponent extends EddieComponent implements StatusComponent {
 
     public Collection<Question> getQuestions() {
         return questions.getValues();
-    }
-
-    public void deregisterEditMenu(FaqEditComponent editComponent) {
-        dynamicSubcomponent.removeInstance(editComponent.getDynamicId());
     }
 
     public FaqMessageModal getMessageModal() {

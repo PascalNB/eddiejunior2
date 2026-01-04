@@ -11,7 +11,7 @@ public abstract class EddieModal<T extends EddieComponent> extends
     }
 
     @Override
-    public Class<ModalInteractionEvent> getType() {
+    public Class<ModalInteractionEvent> getEventType() {
         return ModalInteractionEvent.class;
     }
 

@@ -2,6 +2,7 @@ package com.pascalnb.eddie;
 
 import com.pascalnb.dbwrapper.DatabaseAuthenticator;
 import com.pascalnb.dbwrapper.DatabaseException;
+import com.pascalnb.eddie.components.event.EventComponent;
 import com.pascalnb.eddie.components.fanart.FanartComponent;
 import com.pascalnb.eddie.components.faq.FaqComponent;
 import com.pascalnb.eddie.components.feedback.FeedbackComponent;
@@ -28,6 +29,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class Eddie {
 
@@ -78,11 +80,11 @@ public class Eddie {
     private static GuildManager registerGuild(GuildReadyEvent guildReadyEvent) {
         Guild guild = guildReadyEvent.getGuild();
         GuildManager guildManager = new GuildManager(guild);
-        Collection<EddieComponent> components = createComponents(guildManager);
+        Map<String, EddieComponent> components = createComponents(guildManager);
         components.forEach(guildManager::addComponent);
         registerCommands(
             guild,
-            components.stream()
+            components.values().stream()
                 .flatMap(c -> c.getSubcomponentsWithEntityType(CommandData.class).stream()
                     .map(EntityProvider::getEntity)
                 )
@@ -107,16 +109,19 @@ public class Eddie {
             .build();
     }
 
-    private static Collection<EddieComponent> createComponents(GuildManager gm) {
+    private static Map<String, EddieComponent> createComponents(GuildManager gm) {
         return getComponentConstructors().entrySet().stream()
-            .map(entry -> entry.getValue().apply(
+            .map(entry -> Map.entry(entry.getKey(), entry.getValue().apply(
                 new ComponentConfig(
                     gm,
                     DatabaseManager.getInstance().forComponent(gm.getGuild().getId(), entry.getKey()),
                     new ComponentLogger(entry.getKey())
                 )
-            ))
-            .toList();
+            )))
+            .collect(Collectors.toMap(
+                Map.Entry::getKey,
+                Map.Entry::getValue
+            ));
     }
 
     private static RestAction<Void> registerCommands(Guild guild, Collection<? extends CommandData> commands) {
@@ -135,7 +140,8 @@ public class Eddie {
             "modmail", ModmailComponent::new,
             "logger", LoggerComponent::new,
             "fanart", FanartComponent::new,
-            "faq", FaqComponent::new
+            "faq", FaqComponent::new,
+            "event", EventComponent::new
         );
     }
 

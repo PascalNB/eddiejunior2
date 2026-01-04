@@ -9,11 +9,13 @@ import java.util.function.Function;
 
 public class MapHandlerCollection<T> implements HandlerCollection<T> {
 
-    private final @Nullable Function<T, String> idProvider;
+    private final String id;
+    private final Function<T, String> idProvider;
     private final Map<String, Consumer<T>> listeners = new HashMap<>();
 
-    public MapHandlerCollection(@Nullable Function<T, String> idProvider) {
+    public MapHandlerCollection(String id, Function<T, String> idProvider) {
         this.idProvider = idProvider;
+        this.id = id;
     }
 
     @Override
@@ -23,10 +25,6 @@ public class MapHandlerCollection<T> implements HandlerCollection<T> {
 
     @Override
     public void accept(T event) {
-        if (idProvider == null) {
-            listeners.values().forEach(handler -> handler.accept(event));
-            return;
-        }
         Consumer<T> listener = listeners.get(idProvider.apply(event));
         if (listener == null) {
             return;
@@ -37,6 +35,11 @@ public class MapHandlerCollection<T> implements HandlerCollection<T> {
     @Nullable
     public Function<T, String> getIdProvider() {
         return idProvider;
+    }
+
+    @Override
+    public String getId() {
+        return id;
     }
 
 }

@@ -81,7 +81,7 @@ public class VariableSet<T> {
         db.removeSetting(name).stage();
     }
 
-    public void replace(Set<? extends T> newValues) {
+    public void replace(Collection<? extends T> newValues) {
         this.values.clear();
         this.values.addAll(newValues);
         Collection<String> serialized = newValues.stream().map(serializer).toList();

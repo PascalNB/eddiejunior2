@@ -8,6 +8,6 @@ public interface EventSubscriber<T extends GenericEvent> extends Consumer<T> {
 
     String getId();
 
-    Class<T> getType();
+    Class<T> getEventType();
 
 }

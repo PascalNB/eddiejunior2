@@ -1,31 +1,36 @@
 package com.pascalnb.eddie.models.dynamic;
 
 import com.pascalnb.eddie.models.EddieComponent;
-import com.pascalnb.eddie.models.EddieSubcomponentBase;
+import com.pascalnb.eddie.models.EddieSubscriberSubcomponent;
 import com.pascalnb.eddie.models.EventSubscriber;
 import com.pascalnb.eddie.listeners.JDAEventHandler;
-import net.dv8tion.jda.api.components.buttons.Button;
 import net.dv8tion.jda.api.events.GenericEvent;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
-public class DynamicSubcomponent extends EddieSubcomponentBase<Void, GenericEvent, EddieComponent> {
+public class DynamicSubcomponent<T extends EddieComponent> extends EddieSubscriberSubcomponent<GenericEvent, T> {
 
     private final JDAEventHandler jdaEventHandlerListener;
     private final Map<String, Child> children = new HashMap<>();
     private long index = 0;
 
-    public DynamicSubcomponent(String id) {
-        super(null, id);
-        this.jdaEventHandlerListener = new JDAEventHandler(null);
+    public DynamicSubcomponent(T component, String id) {
+        super(component, id);
+        this.jdaEventHandlerListener = new JDAEventHandler(getId());
+    }
+
+    public <R> R createInstance(Function<DynamicRegister, R> provider) {
+        return provider.apply(createInstance());
     }
 
     public DynamicRegister createInstance() {
         String childId = createChildId();
-        Child child = new Child(this, childId);
+        Child child = new Child(childId);
         this.children.put(childId, child);
         return child;
     }
@@ -35,8 +40,8 @@ public class DynamicSubcomponent extends EddieSubcomponentBase<Void, GenericEven
     }
 
     private String createEntityId(String childId, String suffix) {
-        String newId = childId + "_" + suffix;
-        if (newId.length() > Button.ID_MAX_LENGTH) {
+        String newId = childId + " " + suffix;
+        if (newId.length() > 100) {
             throw new IllegalArgumentException("Entity ID too long");
         }
         return newId;
@@ -52,60 +57,83 @@ public class DynamicSubcomponent extends EddieSubcomponentBase<Void, GenericEven
             if (listener.getIdProvider() == null) {
                 return;
             }
-            Child child = getChildForInteractionId(listener.getIdProvider().apply(event));
+            String interactionId = listener.getIdProvider().apply(event);
+            Child child = getChildForInteractionId(interactionId);
             if (child != null) {
                 child.accept(event);
             }
         });
     }
 
-    @Override
-    public Class<GenericEvent> getType() {
-        return GenericEvent.class;
-    }
-
-    private @Nullable DynamicSubcomponent.Child getChildForInteractionId(String interactionId) {
-        if (!interactionId.startsWith(getId())) {
+    private @Nullable Child getChildForInteractionId(String interactionId) {
+        if (!interactionId.contains(getId()) || !interactionId.contains(" ")) {
             return null;
         }
-        String[] splitId = interactionId.split("_", 3);
-        if (splitId.length != 3) {
-            return null;
-        }
-        return this.children.get(getId() + "_" + splitId[1]);
-    }
 
-    @Override
-    public Void getEntity() {
+        String[] splitId = interactionId.split(" ");
+
+        for (int i = 1; i < splitId.length; i++) {
+            String[] splitSec = Arrays.copyOfRange(splitId, 0, i);
+            String sec = String.join(" ", splitSec);
+
+            if (!sec.startsWith(getId())) {
+                continue;
+            }
+
+            int splitIndex = sec.lastIndexOf("_");
+            if (splitIndex == -1) {
+                return null;
+            }
+
+            String id = sec.substring(0, splitIndex);
+            if (!getId().equals(id)) {
+                return null;
+            }
+
+            return this.children.get(sec);
+        }
+
         return null;
     }
 
     @Override
-    public Class<Void> getEntityType() {
-        return Void.class;
+    public Class<GenericEvent> getEventType() {
+        return GenericEvent.class;
     }
 
-    private static class Child extends JDAEventHandler implements DynamicRegister {
+    private class Child extends JDAEventHandler implements DynamicRegister {
 
-        private final DynamicSubcomponent dynamicSubcomponent;
-
-        public Child(DynamicSubcomponent dynamicSubcomponent, String id) {
+        public Child(String id) {
             super(id);
-            this.dynamicSubcomponent = dynamicSubcomponent;
         }
 
         @Override
-        public <T extends GenericEvent, R extends EventSubscriber<T>> R registerDynamic(String customId,
+        public <U extends GenericEvent, R extends EventSubscriber<U>> R registerDynamic(String customId,
             Function<String, R> provider) {
-            String entityId = dynamicSubcomponent.createEntityId(getId(), customId);
-            R handler = provider.apply(entityId);
-            addSubscriber(handler);
-            return handler;
+            String entityId = createEntityId(getId(), customId);
+            R subscriber = provider.apply(entityId);
+            return registerDynamic(subscriber);
+        }
+
+        @Override
+        public <U extends GenericEvent, R extends EventSubscriber<U>> R registerDynamic(Supplier<R> provider) {
+            return registerDynamic(provider.get());
+        }
+
+        @Override
+        public <U extends GenericEvent, R extends EventSubscriber<U>> R registerDynamic(R subscriber) {
+            addSubscriber(subscriber);
+            return subscriber;
         }
 
         @Override
         public String getDynamicId() {
             return getId();
+        }
+
+        @Override
+        public void unmount() {
+            removeInstance(getDynamicId());
         }
 
     }

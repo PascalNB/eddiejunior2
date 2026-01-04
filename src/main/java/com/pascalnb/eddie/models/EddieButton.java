@@ -11,7 +11,7 @@ public abstract class EddieButton<T extends EddieComponent> extends
     }
 
     @Override
-    public Class<ButtonInteractionEvent> getType() {
+    public Class<ButtonInteractionEvent> getEventType() {
         return ButtonInteractionEvent.class;
     }
 

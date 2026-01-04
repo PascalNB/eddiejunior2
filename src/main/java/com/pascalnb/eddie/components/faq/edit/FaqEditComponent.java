@@ -96,10 +96,6 @@ public class FaqEditComponent extends DynamicComponent<FaqEditComponent> impleme
         this.component.updateQuestions(questions, callback);
     }
 
-    public void unmount() {
-        this.component.deregisterEditMenu(this);
-    }
-
     @Override
     public EddieComponentFactory<FaqEditComponent> getCloningFactory() {
         return factory(this.questions, this.selectedQuestion, this.changes);
@@ -114,7 +110,12 @@ public class FaqEditComponent extends DynamicComponent<FaqEditComponent> impleme
                 TextDisplay.of("No FAQs yet. Use the button below to create a new FAQ.")
             );
         } else {
-            // Add selecte menu
+            components.add(
+                ActionRow.of(
+                    editSelectMenu.getEntity()
+                )
+            );
+
             if (this.selectedQuestion != null) {
                 FaqAnswerMessage answerMessage = this.component.getAnswerMessage(this.selectedQuestion);
                 MessageComponentTree tree = answerMessage.getEntity().getComponentTree();
@@ -122,29 +123,19 @@ public class FaqEditComponent extends DynamicComponent<FaqEditComponent> impleme
                 components.addAll(answerContainer.getComponents());
 
                 components.add(
-                    Separator.createDivider(Separator.Spacing.SMALL)
-                );
-
-                components.add(
                     ActionRow.of(
                         deleteButton.getEntity(),
                         editButton.getEntity()
                     )
                 );
-
             } else {
                 components.add(
                     TextDisplay.of("Add a new FAQ or select an existing FAQ to edit/remove.")
                 );
             }
-            components.add(
-                Separator.createDivider(Separator.Spacing.LARGE)
-            );
 
             components.add(
-                ActionRow.of(
-                    editSelectMenu.getEntity()
-                )
+                Separator.createDivider(Separator.Spacing.LARGE)
             );
         }
 

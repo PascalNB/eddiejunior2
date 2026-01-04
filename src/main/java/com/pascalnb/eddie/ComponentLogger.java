@@ -26,8 +26,8 @@ public class ComponentLogger {
         }
     }
 
-    public void info(String message) {
-        log(EddieLogger.Level.INFO, null, message);
+    public void info(String message, Object... args) {
+        log(EddieLogger.Level.INFO, null, message, args);
     }
 
     public void info(User user, String message, Object... args) {

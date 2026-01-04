@@ -6,6 +6,8 @@ import java.util.function.Function;
 
 public interface HandlerCollection<T> extends Consumer<T> {
 
+    String getId();
+
     Function<T, String> getIdProvider();
 
     void addListener(String id, Consumer<T> listener);

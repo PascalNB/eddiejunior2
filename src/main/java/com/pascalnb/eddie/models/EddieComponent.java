@@ -54,7 +54,7 @@ public abstract class EddieComponent {
     public <T extends GenericEvent> Collection<EddieSubcomponent<?, T, ?>> getSubcomponentsWithEventType(Class<T> eventType) {
         //noinspection unchecked
         return subcomponents.stream()
-            .filter(handler -> eventType.isAssignableFrom(handler.getType()))
+            .filter(handler -> eventType.isAssignableFrom(handler.getEventType()))
             .map(handler -> (EddieSubcomponent<?, T, ?>) handler)
             .collect(Collectors.toCollection(ArrayList::new));
     }

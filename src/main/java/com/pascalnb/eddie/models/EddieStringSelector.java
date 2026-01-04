@@ -11,7 +11,7 @@ public abstract class EddieStringSelector<T extends EddieComponent> extends
     }
 
     @Override
-    public Class<StringSelectInteractionEvent> getType() {
+    public Class<StringSelectInteractionEvent> getEventType() {
         return StringSelectInteractionEvent.class;
     }
 

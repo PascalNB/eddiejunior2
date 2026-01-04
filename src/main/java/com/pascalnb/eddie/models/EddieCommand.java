@@ -132,7 +132,7 @@ public class EddieCommand<T extends EddieComponent> extends EddieSubcomponentBas
     }
 
     @Override
-    public Class<SlashCommandInteractionEvent> getType() {
+    public Class<SlashCommandInteractionEvent> getEventType() {
         return SlashCommandInteractionEvent.class;
     }
 
