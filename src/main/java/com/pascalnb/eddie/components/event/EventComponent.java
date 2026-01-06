@@ -46,16 +46,16 @@ public class EventComponent extends EddieComponent {
         linkSelector.update();
 
         register(
-            new ScheduledEventListener(this, "event-listener",
+            new ScheduledEventListener(this,
                 name -> handleEvent(name, true),
                 name -> handleEvent(name, false)
             ),
-            new EddieCommand<>(this, "manage-event", "Manage event links",
+            new EddieCommand<>(this, "manage-event-links", "Manage event links",
                 Permission.BAN_MEMBERS, Permission.MANAGE_SERVER)
                 .addSubCommands(
                     new EventEditCommand(this)
                 ),
-            new EddieCommand<>(this, "event", "Event links",
+            new EddieCommand<>(this, "event-links", "Event links",
                 Permission.BAN_MEMBERS)
                 .addSubCommands(
                     new LinkViewCommand(this)

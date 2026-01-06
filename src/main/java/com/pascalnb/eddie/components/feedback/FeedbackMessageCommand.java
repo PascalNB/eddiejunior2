@@ -6,7 +6,7 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 public class FeedbackMessageCommand extends EddieCommand<FeedbackComponent> {
 
     public FeedbackMessageCommand(FeedbackComponent component) {
-        super(component, "send-message", "Send the feedback submit button");
+        super(component, "send-button", "Send the feedback submit button");
     }
 
     @Override

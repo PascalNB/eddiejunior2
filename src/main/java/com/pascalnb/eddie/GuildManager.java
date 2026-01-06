@@ -4,12 +4,13 @@ import com.pascalnb.eddie.listeners.*;
 import com.pascalnb.eddie.models.EddieComponent;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.GenericEvent;
+import net.dv8tion.jda.api.hooks.EventListener;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class GuildManager extends ComponentLogger implements net.dv8tion.jda.api.hooks.EventListener {
+public class GuildManager extends ComponentLogger implements EventListener {
 
     private final Guild guild;
     private final Map<String, EddieComponent> components = new HashMap<>();

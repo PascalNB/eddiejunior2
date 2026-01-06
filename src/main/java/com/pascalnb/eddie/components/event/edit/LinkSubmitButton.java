@@ -32,11 +32,14 @@ public class LinkSubmitButton extends EddieButton<LinkEditComponent> {
     public void accept(ButtonInteractionEvent event) {
         event.deferEdit().queue(hook -> {
             getComponent().submit();
+
             Collection<EventComponent.Link> changes = getComponent().getChanges();
             List<String> changesLinks = changes.stream().map(EventComponent.Link::name).toList();
             String formattedChanges = changesLinks.stream()
                 .map("- **%s**"::formatted)
                 .collect(Collectors.joining("\n"));
+
+            getComponent().getLogger().info(event.getUser(), "Updated event links%n%s", formattedChanges);
 
             List<ContainerChildComponent> components = new ArrayList<>(List.of(
                 TextDisplay.of("## Changes saved"),

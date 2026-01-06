@@ -152,6 +152,7 @@ public class FeedbackSession implements StatusComponent {
         members.add(member);
         boolean replaced = submissions.removeIf(submission -> submission.member().equals(member));
         submissions.add(new Submission(member, url, message));
+        this.component.getLogger().info(member.getUser(), "Submitted song: <%s>", url);
         if (!replaced) {
             submissionCount++;
         }
@@ -320,10 +321,12 @@ public class FeedbackSession implements StatusComponent {
                 .onErrorMap(e -> null)
                 .complete();
             if (voiceState == null) {
+                this.component.getLogger().info("Skipped submission by %s", submission.member().getAsMention());
                 continue;
             }
             AudioChannel connectedChannel = voiceState.getChannel();
             if (!voiceChannel.getValue().equals(connectedChannel)) {
+                this.component.getLogger().info("Skipped submission by %s", submission.member().getAsMention());
                 continue;
             }
 

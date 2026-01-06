@@ -16,9 +16,9 @@ public class ScheduledEventListener extends EddieSubscriberSubcomponent<GenericE
     private final Consumer<String> onEventNameStart;
     private final Consumer<String> onEventNameEnd;
 
-    public ScheduledEventListener(EventComponent component, String id, Consumer<String> onEventNameStart,
+    public ScheduledEventListener(EventComponent component, Consumer<String> onEventNameStart,
         Consumer<String> onEventNameEnd) {
-        super(component, id);
+        super(component, "event-listener");
         this.onEventNameStart = onEventNameStart;
         this.onEventNameEnd = onEventNameEnd;
     }

@@ -38,6 +38,8 @@ class FaqSubmitButton extends EddieButton<FaqEditComponent> {
                     .map("- **%s**"::formatted)
                     .collect(Collectors.joining("\n"));
 
+                getComponent().getLogger().info(event.getUser(), "Updated FAQ message%n%s", formattedChanges);
+
                 List<ContainerChildComponent> components = new ArrayList<>(List.of(
                     TextDisplay.of("## Changes saved"),
                     Separator.createDivider(Separator.Spacing.SMALL),

@@ -15,7 +15,7 @@ public class FeedbackNextButton extends EddieButton<FeedbackComponent> {
 
     @Override
     public Button getEntity() {
-        return Button.primary(getId(), "Get next song").withEmoji(Emoji.fromUnicode("🎵"));
+        return Button.success(getId(), "Get next song").withEmoji(Emoji.fromUnicode("🎵"));
     }
 
     @Override

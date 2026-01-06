@@ -9,6 +9,7 @@ import com.pascalnb.eddie.components.feedback.FeedbackComponent;
 import com.pascalnb.eddie.components.logger.LoggerComponent;
 import com.pascalnb.eddie.components.modmail.ModmailComponent;
 import com.pascalnb.eddie.components.ping.PingComponent;
+import com.pascalnb.eddie.components.role.RoleComponent;
 import com.pascalnb.eddie.database.DatabaseManager;
 import com.pascalnb.eddie.listeners.GuildEventListener;
 import com.pascalnb.eddie.models.*;
@@ -138,10 +139,11 @@ public class Eddie {
             "ping", PingComponent::new,
             "feedback", FeedbackComponent::new,
             "modmail", ModmailComponent::new,
-            "logger", LoggerComponent::new,
+            "log", LoggerComponent::new,
             "fanart", FanartComponent::new,
             "faq", FaqComponent::new,
-            "event", EventComponent::new
+            "event", EventComponent::new,
+            "role", RoleComponent::new
         );
     }
 

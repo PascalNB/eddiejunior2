@@ -25,7 +25,7 @@ public class LoggerComponent extends EddieComponent implements EddieLogger {
         this.channel = createComponent(TextChannelVariableComponent.factory("channel"));
 
         register(
-            new EddieCommand<>(this, "manage-logger", "Logger",
+            new EddieCommand<>(this, "manage-log", "Manage logging",
                 Permission.BAN_MEMBERS, Permission.MANAGE_SERVER)
                 .addSubCommands(
                     channel.getCommands()
