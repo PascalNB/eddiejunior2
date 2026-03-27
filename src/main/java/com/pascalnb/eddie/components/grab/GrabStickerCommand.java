@@ -5,6 +5,8 @@ import com.pascalnb.eddie.models.EddieSubcomponentBase;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.sticker.StickerItem;
 import net.dv8tion.jda.api.events.interaction.command.MessageContextInteractionEvent;
+import net.dv8tion.jda.api.interactions.IntegrationType;
+import net.dv8tion.jda.api.interactions.InteractionContextType;
 import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
@@ -20,7 +22,9 @@ public class GrabStickerCommand extends EddieSubcomponentBase<CommandData, Messa
     @Override
     public CommandData getEntity() {
         return Commands.message(getId())
-            .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.BAN_MEMBERS));
+            .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.BAN_MEMBERS))
+            .setContexts(InteractionContextType.GUILD)
+            .setIntegrationTypes(IntegrationType.GUILD_INSTALL);
     }
 
     @Override
