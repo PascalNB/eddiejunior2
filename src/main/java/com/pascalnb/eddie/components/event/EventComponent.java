@@ -2,7 +2,7 @@ package com.pascalnb.eddie.components.event;
 
 import com.pascalnb.eddie.components.RunnableComponent;
 import com.pascalnb.eddie.components.event.edit.LinkEditComponent;
-import com.pascalnb.eddie.components.setting.set.VariableSet;
+import com.pascalnb.eddie.components.variable.set.VariableSet;
 import com.pascalnb.eddie.models.ComponentConfig;
 import com.pascalnb.eddie.models.EddieCommand;
 import com.pascalnb.eddie.models.EddieComponent;
@@ -66,15 +66,12 @@ public class EventComponent extends EddieComponent {
     }
 
     private void handleEvent(String name, boolean start) {
-        Collection<Link> matches = getMatchingLinks(name);
-        if (matches.isEmpty()) {
+        Link link = getMatchingLink(name);
+        if (link == null) {
             return;
         }
 
-        Collection<RunnableComponent> components = getRunnableComponents(matches.stream()
-            .flatMap(link -> link.components().stream())
-            .toList()
-        );
+        Collection<RunnableComponent> components = getRunnableComponents(link.components());
 
         Runnable startComponents = () -> components.forEach(component -> {
             component.start();
@@ -86,8 +83,7 @@ public class EventComponent extends EddieComponent {
             getGuildManager().info("Stopped `%s`", component.getRunnableTitle());
         });
 
-        Collection<Session> sessions = matches.stream()
-            .flatMap(link -> link.sessions().stream())
+        Collection<Session> sessions = link.sessions().stream()
             .filter(session -> getGuild().getTextChannelById(session.channel().getId()) != null)
             .toList();
 
@@ -106,16 +102,17 @@ public class EventComponent extends EddieComponent {
         }
     }
 
-    private Collection<Link> getMatchingLinks(String name) {
+    private @Nullable Link getMatchingLink(String name) {
         String lower = name.toLowerCase(Locale.ROOT);
-        List<Link> matches = new ArrayList<>();
-        for (Link link : this.links.getValues()) {
-            if (link.keywords().stream().anyMatch(lower::contains)) {
-                matches.add(link);
-                break;
-            }
-        }
-        return matches;
+        return this.links.getValues().stream()
+            .flatMap(link -> link.keywords().stream().map(keyword -> Map.entry(keyword, link)))
+            .filter(entry -> lower.contains(entry.getKey()))
+            .max(
+                Comparator.comparing((Map.Entry<String, Link> e) -> e.getKey().length())
+                    .thenComparing(Map.Entry::getKey)
+            )
+            .map(Map.Entry::getValue)
+            .orElse(null);
     }
 
     private Collection<RunnableComponent> getRunnableComponents(Collection<String> componentIds) {

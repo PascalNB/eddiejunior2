@@ -1,4 +1,4 @@
-package com.pascalnb.eddie.components.setting;
+package com.pascalnb.eddie.components.variable;
 
 import com.pascalnb.eddie.models.ComponentConfig;
 import com.pascalnb.eddie.models.EddieCommand;
@@ -18,14 +18,14 @@ public class VariableComponent<T> extends EddieComponent {
     private final OptionData optionData;
     private final Function<OptionMapping, T> mapper;
 
-    public VariableComponent(ComponentConfig config,
-        String name, OptionData optionData, Function<OptionMapping, T> mapper, Function<@NotNull T, String> pretty,
+    public VariableComponent(ComponentConfig config, String name, OptionData optionData,
+        Function<OptionMapping, T> mapper, Function<@NotNull T, String> pretty,
         Function<T, String> serializer, Function<String, T> deserializer) {
         this(config, name, optionData, mapper, pretty, serializer, deserializer, null);
     }
 
-    public VariableComponent(ComponentConfig config,
-        String name, OptionData optionData, Function<OptionMapping, T> mapper, Function<@NotNull T, String> pretty,
+    public VariableComponent(ComponentConfig config, String name, OptionData optionData,
+        Function<OptionMapping, T> mapper, Function<@NotNull T, String> pretty,
         Function<T, String> serializer, Function<String, T> deserializer, T defaultValue) {
         super(config);
         this.variable = new Variable<>(getDB(), name, pretty, serializer, deserializer, defaultValue);

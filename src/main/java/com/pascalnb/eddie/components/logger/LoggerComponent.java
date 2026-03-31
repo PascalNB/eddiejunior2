@@ -1,8 +1,8 @@
 package com.pascalnb.eddie.components.logger;
 
 import com.pascalnb.eddie.*;
-import com.pascalnb.eddie.components.setting.TextChannelVariableComponent;
-import com.pascalnb.eddie.components.setting.VariableComponent;
+import com.pascalnb.eddie.components.variable.TextChannelVariableComponent;
+import com.pascalnb.eddie.components.variable.VariableComponent;
 import com.pascalnb.eddie.models.ComponentConfig;
 import com.pascalnb.eddie.models.EddieCommand;
 import com.pascalnb.eddie.models.EddieComponent;
@@ -22,7 +22,7 @@ public class LoggerComponent extends EddieComponent implements EddieLogger {
     public LoggerComponent(ComponentConfig config) {
         super(config);
 
-        this.channel = createComponent(TextChannelVariableComponent.factory("channel"));
+        this.channel = createComponent(TextChannelVariableComponent.factory("channel", "Channel"));
 
         register(
             new EddieCommand<>(this, "manage-log", "Manage logging",

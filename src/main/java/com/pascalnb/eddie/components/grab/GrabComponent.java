@@ -20,6 +20,7 @@ public class GrabComponent extends EddieComponent {
                     new GrabSplashCommand(this)
                 ),
             new GrabStickerCommand(this)
+                .addPermissions(Permission.BAN_MEMBERS)
         );
     }
 

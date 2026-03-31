@@ -1,7 +1,7 @@
 package com.pascalnb.eddie.components;
 
-import com.pascalnb.eddie.components.setting.VariableComponent;
-import com.pascalnb.eddie.components.setting.set.VariableSetComponent;
+import com.pascalnb.eddie.components.variable.VariableComponent;
+import com.pascalnb.eddie.components.variable.set.VariableSetComponent;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 

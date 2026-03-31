@@ -1,4 +1,4 @@
-package com.pascalnb.eddie.components.setting.set;
+package com.pascalnb.eddie.components.variable.set;
 
 import com.pascalnb.eddie.EmbedUtil;
 import com.pascalnb.eddie.models.EddieCommand;

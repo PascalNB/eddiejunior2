@@ -3,8 +3,8 @@ package com.pascalnb.eddie.components.feedback;
 import com.pascalnb.eddie.ColorUtil;
 import com.pascalnb.eddie.URLUtil;
 import com.pascalnb.eddie.components.StatusComponent;
-import com.pascalnb.eddie.components.setting.VariableComponent;
-import com.pascalnb.eddie.components.setting.set.VariableSetComponent;
+import com.pascalnb.eddie.components.variable.VariableComponent;
+import com.pascalnb.eddie.components.variable.set.VariableSetComponent;
 import com.pascalnb.eddie.exceptions.CommandException;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
@@ -30,17 +30,29 @@ import org.jetbrains.annotations.Nullable;
 import java.time.Instant;
 import java.util.*;
 import java.util.regex.Matcher;
+import java.util.stream.Collectors;
 
 public class FeedbackSession implements StatusComponent {
+
+    public static final int BASELINE = 4;
+    // MISS=0, LOSE=1, WIN=2
+    public static final int[][] MULTIPLIERS = new int[][]{
+        new int[]{4, 6, 2},
+        new int[]{6, 8, 2},
+        new int[]{4, 4, 1}
+    };
 
     private final FeedbackComponent component;
     private final Set<Member> members = new HashSet<>();
     private final List<Submission> submissions = new ArrayList<>();
+    private final Set<String> winnerIds = new HashSet<>();
+    private final StoredSession[] previousSessions;
     private int submissionCount = 0;
     private Member currentWinner = null;
 
-    public FeedbackSession(FeedbackComponent component) {
+    public FeedbackSession(FeedbackComponent component, StoredSession[] previousSessions) {
         this.component = component;
+        this.previousSessions = previousSessions;
     }
 
     /**
@@ -141,16 +153,20 @@ public class FeedbackSession implements StatusComponent {
         }
     }
 
-
-    public RestAction<Void> addSong(Member member, String url) {
+    public RestAction<Void> addSubmission(Member member, String url) {
         return validateSubmission(member, url)
             .onSuccess(success -> {
                 synchronized (this) {
                     MessageCreateData message = createSubmissionMessage(member, url);
                     members.add(member);
                     boolean replaced = submissions.removeIf(submission -> submission.member().equals(member));
-                    submissions.add(new Submission(member, url, message));
-                    this.component.getLogger().info(member.getUser(), "Submitted song: <%s>", url);
+
+                    Submission submission = new Submission(member, url, message);
+                    int multiplier = getMultiplier(member.getId());
+                    submissions.addAll(Collections.nCopies(multiplier, submission));
+
+                    this.component.getLogger().info(member.getUser(), "Submitted song: <%s> (×%.2f)", url,
+                        ((float) multiplier) / BASELINE);
                     if (!replaced) {
                         submissionCount++;
                     }
@@ -162,9 +178,9 @@ public class FeedbackSession implements StatusComponent {
      * Validates the submission of a URL by a member and ensures all defined criteria are met.
      *
      * @param member The member who is submitting the URL.
-     * @param url The URL being submitted for validation.
+     * @param url    The URL being submitted for validation.
      * @return A {@code RestAction<GuildVoiceState>} representing the result of the submission validation.
-     *         It either resolves successfully with the member's voice state or fails with an appropriate error.
+     * It either resolves successfully with the member's voice state or fails with an appropriate error.
      */
     private RestAction<Void> validateSubmission(Member member, String url) {
         Matcher matcher = URLUtil.matchUrl(url);
@@ -238,6 +254,18 @@ public class FeedbackSession implements StatusComponent {
         return builder.build();
     }
 
+    private int getMultiplier(String userId) {
+        int n2 = previousSessions[0].winnerIds().contains(userId)
+            ? 2
+            : previousSessions[0].submissionIds().contains(userId)
+              ? 1 : 0;
+        int n1 = previousSessions[1].winnerIds().contains(userId)
+            ? 2
+            : previousSessions[1].submissionIds().contains(userId)
+              ? 1 : 0;
+        return MULTIPLIERS[n2][n1];
+    }
+
     /**
      * Retrieves the submission URL associated with the specified member.
      *
@@ -261,7 +289,9 @@ public class FeedbackSession implements StatusComponent {
                 component.getWinRole().accept(role ->
                     transferWinRole(role, this.currentWinner, submission.member())
                 );
+
                 this.currentWinner = submission.member();
+                this.winnerIds.add(this.currentWinner.getId());
 
                 if (voiceState != null) {
                     component.getVoiceChannel().accept(channel ->
@@ -285,7 +315,6 @@ public class FeedbackSession implements StatusComponent {
             });
     }
 
-
     @NotNull
     private RestAction<SubmissionVoiceState> getNextSubmission() {
         JDA jda = component.getGuild().getJDA();
@@ -302,14 +331,17 @@ public class FeedbackSession implements StatusComponent {
     }
 
     private RestAction<SubmissionVoiceState> getSubmissionAction(JDA jda) {
-        return new DeferredRestAction<>(jda, () -> {
+        return new DeferredRestAction<>(jda, SubmissionVoiceState.class, () -> null, () -> {
             if (this.submissions.isEmpty()) {
-                return new CompletedRestAction<>(jda, new CommandException("None of the participants are connected to the voice channel"));
+                return new CompletedRestAction<>(jda,
+                    new CommandException("None of the participants are connected to the voice channel"));
             }
 
             VariableComponent<AudioChannel> voiceChannel = component.getVoiceChannel();
 
             Submission submission = this.submissions.removeFirst();
+            this.submissions.removeAll(Collections.singleton(submission));
+
             if (!voiceChannel.hasValue()) {
                 return new CompletedRestAction<>(jda, new SubmissionVoiceState(submission, null));
             }
@@ -318,13 +350,16 @@ public class FeedbackSession implements StatusComponent {
                 .onErrorMap(e -> null)
                 .flatMap(voiceState -> {
                     if (voiceState == null) {
-                        this.component.getLogger().info("Skipped submission by %s", submission.member().getAsMention());
+                        this.component.getLogger().info("Skipped submission by %s",
+                            submission.member().getAsMention());
                         return getSubmissionAction(jda); // recursion
                     }
 
                     AudioChannel connectedChannel = voiceState.getChannel();
-                    if (connectedChannel == null || !voiceChannel.getValue().getId().equals(connectedChannel.getId())) {
-                        this.component.getLogger().info("Skipped submission by %s", submission.member().getAsMention());
+                    if (connectedChannel == null ||
+                        !voiceChannel.getValue().getId().equals(connectedChannel.getId())) {
+                        this.component.getLogger().info("Skipped submission by %s",
+                            submission.member().getAsMention());
                         return getSubmissionAction(jda); // recursion
                     }
 
@@ -403,12 +438,20 @@ public class FeedbackSession implements StatusComponent {
 
     @Override
     public void supplyStatus(StatusCollector collector) {
-        collector.addString("Submissions", String.valueOf(submissions.size()))
+        collector.addString("Submissions", String.valueOf(submissionCount))
             .addString("Queue size", String.valueOf(submissions.size()));
     }
 
     public synchronized List<Member> getQueuedMembers() {
         return submissions.stream().map(Submission::member).toList();
+    }
+
+    public Set<String> getWinnerIds() {
+        return winnerIds;
+    }
+
+    public Set<String> getSubmissionIds() {
+        return members.stream().map(ISnowflake::getId).collect(Collectors.toSet());
     }
 
     private record Submission(Member member, String url, MessageCreateData message) {}

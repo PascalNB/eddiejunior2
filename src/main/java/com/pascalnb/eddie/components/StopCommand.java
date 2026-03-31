@@ -13,9 +13,12 @@ public class StopCommand<T extends EddieComponent & RunnableComponent> extends E
 
     @Override
     public void accept(SlashCommandInteractionEvent event) {
-        getComponent().stop();
-        getComponent().getLogger().info(event.getUser(), "Stopped `%s`", getComponent().getRunnableTitle());
-        event.replyEmbeds(EmbedUtil.ok("%s stopped", getComponent().getRunnableTitle()).build()).queue();
+        if (getComponent().stop()) {
+            getComponent().getLogger().info(event.getUser(), "Stopped `%s`", getComponent().getRunnableTitle());
+            event.replyEmbeds(EmbedUtil.ok("%s stopped", getComponent().getRunnableTitle()).build()).queue();
+        } else {
+            event.replyEmbeds(EmbedUtil.info("%s not running", getComponent().getRunnableTitle()).build()).queue();
+        }
     }
 
 }

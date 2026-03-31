@@ -43,9 +43,7 @@ public class LinkViewMessage extends EddieMessage<EventComponent> {
                         .map(s -> s.length() > 50 ? s.substring(0, 47) + "..." : s)
                         .map(s -> "\n    - " + String.join("\n    ", s.split("\n")))
                         .orElse("");
-                    return """
-                        - %s%s
-                        """.formatted(channel, message);
+                    return "- %s%s".formatted(channel, message);
                 })
                 .collect(Collectors.joining("\n"));
 

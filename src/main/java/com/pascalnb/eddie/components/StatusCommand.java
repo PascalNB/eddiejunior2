@@ -1,8 +1,8 @@
 package com.pascalnb.eddie.components;
 
 import com.pascalnb.eddie.EmbedUtil;
-import com.pascalnb.eddie.components.setting.VariableComponent;
-import com.pascalnb.eddie.components.setting.set.VariableSetComponent;
+import com.pascalnb.eddie.components.variable.VariableComponent;
+import com.pascalnb.eddie.components.variable.set.VariableSetComponent;
 import com.pascalnb.eddie.models.EddieCommand;
 import com.pascalnb.eddie.models.EddieComponent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;

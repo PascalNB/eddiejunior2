@@ -75,7 +75,7 @@ public class Eddie {
             jda.getPresence().setPresence(OnlineStatus.IDLE, Activity.playing("Starting..."));
             jda.awaitReady();
             jda.updateCommands().queue(); // delete global commands
-            jda.getPresence().setPresence(OnlineStatus.ONLINE, null, false);
+            jda.getPresence().setPresence(OnlineStatus.ONLINE, Activity.customStatus("\uD83D\uDCDD Events & Utility"), false);
 
         } catch (InterruptedException e) {
             throw new RuntimeException(e);

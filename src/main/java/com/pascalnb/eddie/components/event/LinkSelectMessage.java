@@ -4,6 +4,8 @@ import com.pascalnb.eddie.models.EddieMessage;
 import net.dv8tion.jda.api.components.actionrow.ActionRow;
 import net.dv8tion.jda.api.components.container.Container;
 import net.dv8tion.jda.api.components.container.ContainerChildComponent;
+import net.dv8tion.jda.api.components.selections.SelectOption;
+import net.dv8tion.jda.api.components.selections.StringSelectMenu;
 import net.dv8tion.jda.api.components.textdisplay.TextDisplay;
 import net.dv8tion.jda.api.components.tree.MessageComponentTree;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
@@ -30,13 +32,20 @@ public class LinkSelectMessage extends EddieMessage<EventComponent> {
 
         if (links.isEmpty()) {
             components.add(
-                TextDisplay.of("No links yet. User `/manage-event edit` to add links.")
+                TextDisplay.of("No links yet. User `/manage-event-links edit` to add links.")
             );
         } else {
+            LinkSelector linkSelector = getComponent().getLinkSelector();
+            StringSelectMenu selectMenu = linkSelector.getEntity();
+            if (selectedLink != null) {
+                SelectOption option = linkSelector.getOption(selectedLink);
+                if (option != null) {
+                    selectMenu = linkSelector.getEntity().createCopy().setDefaultOptions(option).build();
+                }
+            }
+
             components.add(
-                ActionRow.of(
-                    getComponent().getLinkSelector().getEntity()
-                )
+                ActionRow.of(selectMenu)
             );
 
             if (this.selectedLink != null) {

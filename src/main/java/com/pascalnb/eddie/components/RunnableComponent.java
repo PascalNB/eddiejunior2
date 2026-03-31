@@ -4,8 +4,8 @@ public interface RunnableComponent {
 
     String getRunnableTitle();
 
-    void start();
+    boolean start();
 
-    void stop();
+    boolean stop();
 
 }

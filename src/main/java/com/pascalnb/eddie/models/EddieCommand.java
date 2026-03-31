@@ -33,6 +33,11 @@ public class EddieCommand<T extends EddieComponent> extends EddieSubcomponentBas
         return this;
     }
 
+    public EddieCommand<T> addPermissions(Collection<Permission> permissions) {
+        this.permissions.addAll(permissions);
+        return this;
+    }
+
     public EddieCommand<T> addSubCommands(Collection<EddieCommand<?>> subCommands) {
         this.subCommands.addAll(subCommands);
         return this;

@@ -1,6 +1,6 @@
 package com.pascalnb.eddie.components;
 
-import com.pascalnb.eddie.components.setting.set.VariableSetComponent;
+import com.pascalnb.eddie.components.variable.set.VariableSetComponent;
 import com.pascalnb.eddie.models.ComponentConfig;
 import net.dv8tion.jda.api.entities.ISnowflake;
 import net.dv8tion.jda.api.entities.User;

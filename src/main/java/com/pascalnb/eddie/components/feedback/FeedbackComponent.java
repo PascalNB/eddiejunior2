@@ -2,18 +2,21 @@ package com.pascalnb.eddie.components.feedback;
 
 import com.pascalnb.eddie.*;
 import com.pascalnb.eddie.components.*;
-import com.pascalnb.eddie.components.setting.AudioChannelVariableComponent;
-import com.pascalnb.eddie.components.setting.RoleVariableComponent;
-import com.pascalnb.eddie.components.setting.VariableComponent;
-import com.pascalnb.eddie.components.setting.TextChannelVariableComponent;
-import com.pascalnb.eddie.components.setting.set.VariableSetComponent;
+import com.pascalnb.eddie.components.feedback.past.FeedbackPastComponent;
+import com.pascalnb.eddie.components.variable.AudioChannelVariableComponent;
+import com.pascalnb.eddie.components.variable.RoleVariableComponent;
+import com.pascalnb.eddie.components.variable.VariableComponent;
+import com.pascalnb.eddie.components.variable.TextChannelVariableComponent;
+import com.pascalnb.eddie.components.variable.set.VariableSet;
+import com.pascalnb.eddie.components.variable.set.VariableSetComponent;
 import com.pascalnb.eddie.exceptions.CommandException;
 import com.pascalnb.eddie.models.*;
+import com.pascalnb.eddie.models.dynamic.DynamicSubcomponent;
+import com.pascalnb.eddie.models.menu.SettingsMenuCommand;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel;
-import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
@@ -21,7 +24,9 @@ import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.utils.messages.MessageEditData;
 import net.dv8tion.jda.internal.requests.CompletedRestAction;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 
@@ -31,10 +36,11 @@ public class FeedbackComponent extends EddieComponent implements RunnableCompone
 
     private final BlacklistComponent blacklist;
     private final VariableSetComponent<String> websites;
-    private final VariableComponent<TextChannel> submissionChannel;
-    private final VariableComponent<AudioChannel> voiceChannel;
-    private final VariableComponent<TextChannel> chatChannel;
-    private final VariableComponent<Role> winRole;
+    private final TextChannelVariableComponent submissionChannel;
+    private final AudioChannelVariableComponent voiceChannel;
+    private final TextChannelVariableComponent chatChannel;
+    private final RoleVariableComponent winRole;
+    private final VariableSet<StoredSession> storedSessions;
 
     private final FeedbackSubmitModal submitModal = new FeedbackSubmitModal(this);
     private final FeedbackSubmitButton submitButton = new FeedbackSubmitButton(this);
@@ -42,6 +48,9 @@ public class FeedbackComponent extends EddieComponent implements RunnableCompone
     private final FeedbackNextButton nextButton = new FeedbackNextButton(this);
     private final FeedbackStopButton stopButton = new FeedbackStopButton(this);
     private final FeedbackStartMessage startMenu = new FeedbackStartMessage(this);
+
+    private final DynamicSubcomponent<FeedbackComponent> dynamicSubcomponent = new DynamicSubcomponent<>(this,
+        "feedback");
 
     public FeedbackComponent(ComponentConfig config) {
         super(config);
@@ -61,10 +70,14 @@ public class FeedbackComponent extends EddieComponent implements RunnableCompone
             }
         };
 
-        this.submissionChannel = createComponent(TextChannelVariableComponent.factory("submissions-channel"));
-        this.chatChannel = createComponent(TextChannelVariableComponent.factory("chat-channel"));
-        this.winRole = createComponent(RoleVariableComponent.factory("win-role"));
-        this.voiceChannel = createComponent(AudioChannelVariableComponent.factory("voice-channel"));
+        this.submissionChannel = createComponent(TextChannelVariableComponent.factory("submissions-channel",
+            "Submissions Channel"));
+        this.chatChannel = createComponent(TextChannelVariableComponent.factory("chat-channel", "Chat Channel"));
+        this.winRole = createComponent(RoleVariableComponent.factory("win-role", "Winner Role"));
+        this.voiceChannel = createComponent(AudioChannelVariableComponent.factory("voice-channel", "Voice Channel"));
+
+        this.storedSessions = new VariableSet<>(config.componentDatabaseManager(), "sessions",
+            s -> "`" + s + "`", StoredSession::toString, StoredSession::fromString);
 
         register(
             new EddieCommand<>(this, "feedback", "Feedback", Permission.BAN_MEMBERS)
@@ -85,16 +98,16 @@ public class FeedbackComponent extends EddieComponent implements RunnableCompone
                 .addSubCommands(
                     Util.spread(
                         websites.getCommands(),
-                        submissionChannel.getCommands(),
-                        chatChannel.getCommands(),
-                        winRole.getCommands(),
-                        voiceChannel.getCommands()
+                        new SettingsMenuCommand<>(this, "feedback",
+                            submissionChannel, chatChannel, winRole, voiceChannel),
+                        new FeedbackPastCommand(this)
                     )
                 ),
             this.submitButton,
             this.nextButton,
             this.stopButton,
-            this.submitModal
+            this.submitModal,
+            this.dynamicSubcomponent
         );
     }
 
@@ -112,7 +125,7 @@ public class FeedbackComponent extends EddieComponent implements RunnableCompone
 
     public RestAction<Void> handleSubmission(Member member, String url) {
         try {
-            return getSessionSafe().addSong(member, url);
+            return getSessionSafe().addSubmission(member, url);
         } catch (CommandException e) {
             return new CompletedRestAction<>(member.getJDA(), e);
         }
@@ -190,23 +203,65 @@ public class FeedbackComponent extends EddieComponent implements RunnableCompone
         return submitMessage;
     }
 
+    public FeedbackPastComponent getPastComponent() {
+        return createComponent(config -> new FeedbackPastComponent(config, this, dynamicSubcomponent.createInstance()));
+    }
+
     @Override
     public String getRunnableTitle() {
         return "Feedback session";
     }
 
     @Override
-    public void start() {
-        session.set(new FeedbackSession(this));
+    public boolean start() {
+        if (session.get() != null) {
+            return false;
+        }
+        session.set(new FeedbackSession(this, getPreviousSessions()));
         session.get().start(); // Send messages to channels
+        return true;
     }
 
     @Override
-    public void stop() {
+    public boolean stop() {
         if (session.get() == null) {
-            return;
+            return false;
         }
-        session.getAndSet(null).reset();
+        FeedbackSession currentSession = session.getAndSet(null);
+        Set<String> winnerIds = currentSession.getWinnerIds();
+        Set<String> submissionIds = currentSession.getSubmissionIds();
+        StoredSession storedSession = new StoredSession(
+            System.currentTimeMillis(),
+            winnerIds,
+            submissionIds
+        );
+        try {
+            this.storedSessions.addValue(storedSession);
+        } catch (CommandException e) {
+            getLogger().error(e);
+        }
+        currentSession.reset();
+        return true;
+    }
+
+    private StoredSession[] getPreviousSessions() {
+        List<StoredSession> topK = getPastSessions(2);
+        if (topK.isEmpty()) {
+            return new StoredSession[]{StoredSession.DEFAULT, StoredSession.DEFAULT};
+        } else if (topK.size() == 1) {
+            return new StoredSession[]{StoredSession.DEFAULT, topK.getFirst()};
+        } else {
+            return topK.reversed().toArray(StoredSession[]::new);
+        }
+    }
+
+    public List<StoredSession> getPastSessions(int n) {
+        return this.storedSessions.getValues().stream()
+            .collect(Util.topK(n, Comparator.comparing(StoredSession::epoch)));
+    }
+
+    public boolean removeSession(StoredSession storedSession) {
+        return this.storedSessions.removeValue(storedSession);
     }
 
     @Override

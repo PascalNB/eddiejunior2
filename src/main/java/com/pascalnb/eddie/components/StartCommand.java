@@ -13,9 +13,12 @@ public class StartCommand<T extends EddieComponent & RunnableComponent> extends 
 
     @Override
     public void accept(SlashCommandInteractionEvent event) {
-        getComponent().start();
-        getComponent().getLogger().info(event.getUser(), "Started `%s`", getComponent().getRunnableTitle());
-        event.replyEmbeds(EmbedUtil.ok("%s started", getComponent().getRunnableTitle()).build()).queue();
+        if (getComponent().start()) {
+            getComponent().getLogger().info(event.getUser(), "Started `%s`", getComponent().getRunnableTitle());
+            event.replyEmbeds(EmbedUtil.ok("%s started", getComponent().getRunnableTitle()).build()).queue();
+        } else {
+            event.replyEmbeds(EmbedUtil.info("%s already running", getComponent().getRunnableTitle()).build()).queue();
+        }
     }
 
 }

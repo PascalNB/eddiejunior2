@@ -5,16 +5,16 @@ import com.pascalnb.eddie.models.ComponentConfig;
 import com.pascalnb.eddie.Util;
 import com.pascalnb.eddie.components.StatusCommand;
 import com.pascalnb.eddie.components.StatusComponent;
-import com.pascalnb.eddie.components.setting.RoleVariableComponent;
-import com.pascalnb.eddie.components.setting.TextChannelVariableComponent;
-import com.pascalnb.eddie.components.setting.Variable;
-import com.pascalnb.eddie.components.setting.VariableComponent;
+import com.pascalnb.eddie.components.variable.RoleVariableComponent;
+import com.pascalnb.eddie.components.variable.TextChannelVariableComponent;
+import com.pascalnb.eddie.components.variable.Variable;
+import com.pascalnb.eddie.components.variable.VariableComponent;
 import com.pascalnb.eddie.exceptions.CommandException;
 import com.pascalnb.eddie.models.EddieCommand;
 import com.pascalnb.eddie.models.EddieComponent;
+import com.pascalnb.eddie.models.menu.SettingsMenuCommand;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.concrete.ThreadChannel;
 import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
@@ -24,10 +24,10 @@ import java.util.Objects;
 
 public class ModmailComponent extends EddieComponent implements StatusComponent {
 
-    private final VariableComponent<TextChannel> channel;
+    private final TextChannelVariableComponent channel;
     private final BlacklistComponent blacklist;
     private final Variable<Integer> threadId;
-    private final VariableComponent<Role> mention;
+    private final RoleVariableComponent mention;
 
     private final ModmailSubmitButton submitButton = new ModmailSubmitButton(this);
     private final ModmailMessageModal messageModal = new ModmailMessageModal(this);
@@ -37,10 +37,10 @@ public class ModmailComponent extends EddieComponent implements StatusComponent 
     public ModmailComponent(ComponentConfig config) {
         super(config);
 
-        this.channel = createComponent(TextChannelVariableComponent.factory("channel"));
+        this.channel = createComponent(TextChannelVariableComponent.factory("channel", "Channel"));
         this.blacklist = createComponent(BlacklistComponent::new);
         this.threadId = new Variable<>(getDB(), "thread_id", String::valueOf, String::valueOf, Integer::valueOf, 0);
-        this.mention = createComponent(RoleVariableComponent.factory("mention"));
+        this.mention = createComponent(RoleVariableComponent.factory("mention", "Mentioned Role"));
 
         register(
             new EddieCommand<>(this, "modmail", "Modmail", Permission.BAN_MEMBERS)
@@ -55,9 +55,8 @@ public class ModmailComponent extends EddieComponent implements StatusComponent 
                 Permission.BAN_MEMBERS, Permission.MANAGE_SERVER)
                 .addSubCommands(
                     Util.spread(
-                        channel.getCommands(),
-                        mention.getCommands(),
-                        new ModmailMessageCommand(this)
+                        new ModmailMessageCommand(this),
+                        new SettingsMenuCommand<>(this, "modmail", channel, mention)
                     )
                 ),
             submitButton,

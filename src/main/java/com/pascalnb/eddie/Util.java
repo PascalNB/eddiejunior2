@@ -1,9 +1,40 @@
 package com.pascalnb.eddie;
 
 import java.util.*;
+import java.util.function.BiConsumer;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 public final class Util {
+
+    public static <T> Collector<T, ?, List<T>> topK(int k, Comparator<? super T> comparator) {
+        BiConsumer<PriorityQueue<T>, T> accumulator = (heap, item) -> {
+            if (heap.size() < k) {
+                heap.offer(item);
+            } else if (comparator.compare(item, heap.peek()) > 0) {
+                heap.poll();
+                heap.offer(item);
+            }
+        };
+
+        return Collector.of(
+            () -> new PriorityQueue<>(k, comparator),
+            accumulator,
+
+            (left, right) -> {
+                for (T item : right) {
+                    accumulator.accept(left, item);
+                }
+                return left;
+            },
+
+            heap -> {
+                List<T> result = new ArrayList<>(heap);
+                result.sort(comparator.reversed());
+                return Collections.unmodifiableList(result);
+            }
+        );
+    }
 
     public static <T> List<T> spread(Object... items) {
         List<T> result = new ArrayList<>();
@@ -52,6 +83,5 @@ public final class Util {
 
         return value;
     }
-
 
 }

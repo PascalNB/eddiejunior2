@@ -1,5 +1,6 @@
 package com.pascalnb.eddie.components.faq.answer;
 
+import com.pascalnb.eddie.ColorUtil;
 import com.pascalnb.eddie.components.faq.FaqComponent;
 import com.pascalnb.eddie.models.ComponentConfig;
 import com.pascalnb.eddie.models.EddieComponentFactory;
@@ -29,10 +30,10 @@ public class FaqAnswerComponent extends DynamicComponent<FaqAnswerComponent>
     private final FaqComponent.Question selectedQuestion;
     private final IMentionable mention;
 
-    private FaqAnswerSelectMenu questionSelectMenu;
-    private FaqMentionSelectMenu mentionSelectMenu;
-    private FaqAnswerSubmitButton submitButton;
-    private FaqAnswerCancelButton cancelButton;
+    private final FaqAnswerSelectMenu questionSelectMenu;
+    private final FaqMentionSelectMenu mentionSelectMenu;
+    private final FaqAnswerSubmitButton submitButton;
+    private final FaqAnswerCancelButton cancelButton;
 
     public FaqAnswerComponent(ComponentConfig config, FaqComponent component, DynamicRegister dynamicRegister,
         Collection<FaqComponent.Question> questions) {
@@ -62,23 +63,24 @@ public class FaqAnswerComponent extends DynamicComponent<FaqAnswerComponent>
 
     @Override
     public MessageCreateData getMessage() {
-        List<ContainerChildComponent> components = new ArrayList<>();
 
         if (this.questions.isEmpty()) {
-            components.add(
-                TextDisplay.of("No FAQs yet. Use the button below to create a new FAQ.")
-            );
-        } else {
-            components.addAll(List.of(
-                ActionRow.of(
-                    questionSelectMenu.getEntity()
-                ),
-                ActionRow.of(
-                    mentionSelectMenu.getEntity()
-                ),
-                Separator.createDivider(Separator.Spacing.LARGE)
-            ));
+            this.unmount();
+            return new MessageCreateBuilder().useComponentsV2()
+                .setComponents(Container.of(TextDisplay.of("No FAQs yet"))
+                    .withAccentColor(ColorUtil.RED))
+                .build();
         }
+
+        List<ContainerChildComponent> components = new ArrayList<>(List.of(
+            ActionRow.of(
+                questionSelectMenu.getEntity()
+            ),
+            ActionRow.of(
+                mentionSelectMenu.getEntity()
+            ),
+            Separator.createDivider(Separator.Spacing.LARGE)
+        ));
 
         List<ActionRowChildComponent> bottomButtons = new ArrayList<>(List.of(
             cancelButton.getEntity()

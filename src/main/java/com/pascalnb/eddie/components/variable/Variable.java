@@ -1,4 +1,4 @@
-package com.pascalnb.eddie.components.setting;
+package com.pascalnb.eddie.components.variable;
 
 import com.pascalnb.eddie.database.ComponentDatabaseManager;
 import com.pascalnb.eddie.exceptions.CommandException;

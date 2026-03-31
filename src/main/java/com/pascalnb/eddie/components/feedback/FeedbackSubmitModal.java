@@ -43,7 +43,7 @@ public class FeedbackSubmitModal extends EddieModal<FeedbackComponent> {
                     : List.of(
                         TextDisplay.ofFormat(
                             getComponent().getWebsites().size() == 1
-                                ? "The following website is allowed: %s."
+                            ? "The following website is allowed: %s."
                                 : "The following websites are allowed: %s.",
                             getComponent().getWebsites().getPrettyValues()
                         )
@@ -55,19 +55,16 @@ public class FeedbackSubmitModal extends EddieModal<FeedbackComponent> {
     @Override
     public void accept(ModalInteractionEvent event) {
         String url = Objects.requireNonNull(event.getValue("url")).getAsString();
-        event.deferReply(true).queue(hook -> {
+        event.deferReply(true).queue(hook ->
             getComponent().handleSubmission(event.getMember(), url).queue(
-                success -> {
-                    getComponent().getLogger().info(event.getUser(), "Submitted song <%s>.", url);
+                success ->
                     hook.sendMessageEmbeds(
                         EmbedUtil.ok("Song submitted successfully!").build()
-                    ).queue();
-                },
+                    ).queue(),
                 e -> hook.sendMessageEmbeds(
                     EmbedUtil.error(new CommandException(e)).build()
                 ).queue()
-            );
-        });
+            ));
     }
 
     public FeedbackSubmitModal withUrl(String url) {

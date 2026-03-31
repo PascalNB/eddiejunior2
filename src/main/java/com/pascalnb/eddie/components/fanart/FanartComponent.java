@@ -4,16 +4,15 @@ import com.pascalnb.eddie.Util;
 import com.pascalnb.eddie.components.BlacklistComponent;
 import com.pascalnb.eddie.components.StatusCommand;
 import com.pascalnb.eddie.components.StatusComponent;
-import com.pascalnb.eddie.components.setting.TextChannelVariableComponent;
-import com.pascalnb.eddie.components.setting.VariableComponent;
+import com.pascalnb.eddie.components.variable.TextChannelVariableComponent;
 import com.pascalnb.eddie.exceptions.CommandException;
 import com.pascalnb.eddie.models.ComponentConfig;
 import com.pascalnb.eddie.models.EddieCommand;
 import com.pascalnb.eddie.models.EddieComponent;
+import com.pascalnb.eddie.models.menu.SettingsMenuCommand;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 
@@ -22,8 +21,8 @@ import java.util.List;
 public class FanartComponent extends EddieComponent implements StatusComponent {
 
     private final BlacklistComponent blacklist;
-    private final VariableComponent<TextChannel> channel;
-    private final VariableComponent<TextChannel> reviewChannel;
+    private final TextChannelVariableComponent channel;
+    private final TextChannelVariableComponent reviewChannel;
 
     private final FanartSubmitButton submitButton = new FanartSubmitButton(this);
     private final FanartMessageModal messageModal = new FanartMessageModal(this);
@@ -35,8 +34,8 @@ public class FanartComponent extends EddieComponent implements StatusComponent {
         super(config);
 
         this.blacklist = createComponent(BlacklistComponent::new);
-        this.channel = createComponent(TextChannelVariableComponent.factory("channel"));
-        this.reviewChannel = createComponent(TextChannelVariableComponent.factory("review-channel"));
+        this.channel = createComponent(TextChannelVariableComponent.factory("channel", "Art Channel"));
+        this.reviewChannel = createComponent(TextChannelVariableComponent.factory("review-channel", "Review Channel"));
 
         register(
             new EddieCommand<>(this, "fanart", "Fanart", Permission.BAN_MEMBERS)
@@ -50,9 +49,8 @@ public class FanartComponent extends EddieComponent implements StatusComponent {
                 Permission.MANAGE_SERVER)
                 .addSubCommands(
                     Util.spread(
-                        channel.getCommands(),
-                        reviewChannel.getCommands(),
-                        new FanartMessageCommand(this)
+                        new FanartMessageCommand(this),
+                        new SettingsMenuCommand<>(this, "fanart", channel, reviewChannel)
                     )
                 ),
             submitButton,

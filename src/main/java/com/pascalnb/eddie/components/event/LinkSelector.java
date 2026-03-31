@@ -6,6 +6,7 @@ import net.dv8tion.jda.api.components.selections.SelectOption;
 import net.dv8tion.jda.api.components.selections.StringSelectMenu;
 import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
 import net.dv8tion.jda.api.utils.messages.MessageEditData;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.List;
@@ -49,6 +50,17 @@ public class LinkSelector extends EddieStringSelector<EventComponent> {
                 return SelectOption.of(link.name(), String.valueOf(entry.getKey()));
             })
             .toList();
+    }
+
+    public @Nullable SelectOption getOption(EventComponent.Link link) {
+        return links.entrySet().stream()
+            .filter(e -> e.getValue().equals(link))
+            .map(Map.Entry::getKey)
+            .findFirst()
+            .flatMap(value -> options.stream()
+                .filter(option -> option.getValue().equals(value))
+                .findFirst()
+            ).orElse(null);
     }
 
     @Override
