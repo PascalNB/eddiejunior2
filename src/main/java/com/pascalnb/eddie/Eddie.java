@@ -8,6 +8,7 @@ import com.pascalnb.eddie.components.faq.FaqComponent;
 import com.pascalnb.eddie.components.feedback.FeedbackComponent;
 import com.pascalnb.eddie.components.grab.GrabComponent;
 import com.pascalnb.eddie.components.logger.LoggerComponent;
+import com.pascalnb.eddie.components.message.MessageComponent;
 import com.pascalnb.eddie.components.modmail.ModmailComponent;
 import com.pascalnb.eddie.components.ping.PingComponent;
 import com.pascalnb.eddie.components.role.RoleComponent;
@@ -162,7 +163,8 @@ public class Eddie {
             "faq", FaqComponent::new,
             "event", EventComponent::new,
             "role", RoleComponent::new,
-            "grab", GrabComponent::new
+            "grab", GrabComponent::new,
+            "message", MessageComponent::new
         );
     }
 
