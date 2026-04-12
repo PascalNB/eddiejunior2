@@ -17,6 +17,7 @@ import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel;
+import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
 import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
@@ -29,6 +30,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.time.Instant;
 import java.util.*;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
@@ -62,7 +64,12 @@ public class FeedbackSession implements StatusComponent {
         component.getChatChannel().accept(channel ->
             channel.sendMessage(
                 component.getSubmitMessage().getEntity()
-            ).queue()
+            ).queue(message -> {
+                try {
+                    message.pin().queue();
+                } catch (InsufficientPermissionException ignore) {
+                }
+            })
         );
 
         component.getSubmissionChannel().accept(channel ->
@@ -129,6 +136,8 @@ public class FeedbackSession implements StatusComponent {
         boolean submissionRemoved = submissions.removeIf(submission -> submission.member().equals(member));
         if (!submissionRemoved) {
             throw new CommandException("User did not submit a song");
+        } else {
+            submissionCount--;
         }
         if (resetMember) {
             resetMember(member);
@@ -439,11 +448,23 @@ public class FeedbackSession implements StatusComponent {
     @Override
     public void supplyStatus(StatusCollector collector) {
         collector.addString("Submissions", String.valueOf(submissionCount))
-            .addString("Queue size", String.valueOf(submissions.size()));
+            .addString("Queue size", String.valueOf(getQueuedMembers().size()));
     }
 
     public synchronized List<Member> getQueuedMembers() {
-        return submissions.stream().map(Submission::member).toList();
+        return submissions.stream().map(Submission::member).distinct().toList();
+    }
+
+    public synchronized Map<Member, Float> getQueuedMemberMultipliers() {
+        return submissions.stream()
+            .map(Submission::member)
+            .collect(Collectors.groupingBy(
+                Function.identity(),
+                Collectors.collectingAndThen(
+                    Collectors.counting(),
+                    count -> ((float) count) / BASELINE
+                )
+            ));
     }
 
     public Set<String> getWinnerIds() {

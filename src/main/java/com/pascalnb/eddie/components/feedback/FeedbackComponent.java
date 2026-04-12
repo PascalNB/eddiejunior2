@@ -26,6 +26,7 @@ import net.dv8tion.jda.internal.requests.CompletedRestAction;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
@@ -153,6 +154,10 @@ public class FeedbackComponent extends EddieComponent implements RunnableCompone
 
     public List<Member> getQueuedMembers() throws CommandException {
         return getSessionSafe().getQueuedMembers();
+    }
+
+    public Map<Member, Float> getQueuedMemberMultipliers() throws CommandException {
+        return getSessionSafe().getQueuedMemberMultipliers();
     }
 
     public FeedbackNextButton getNextButton() {
