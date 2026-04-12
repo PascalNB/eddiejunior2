@@ -74,13 +74,15 @@ public class EventComponent extends EddieComponent {
         Collection<RunnableComponent> components = getRunnableComponents(link.components());
 
         Runnable startComponents = () -> components.forEach(component -> {
-            component.start();
-            getGuildManager().info("Started `%s`", component.getRunnableTitle());
+            if (component.start()) {
+                getGuildManager().info("Started `%s`", component.getRunnableTitle());
+            }
         });
 
         Runnable stopComponents = () -> components.forEach(component -> {
-            component.stop();
-            getGuildManager().info("Stopped `%s`", component.getRunnableTitle());
+            if (component.stop()) {
+                getGuildManager().info("Stopped `%s`", component.getRunnableTitle());
+            }
         });
 
         Collection<Session> sessions = link.sessions().stream()
