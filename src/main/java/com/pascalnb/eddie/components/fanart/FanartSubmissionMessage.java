@@ -42,9 +42,9 @@ public class FanartSubmissionMessage extends EddieMessage<FanartComponent> {
                 Thumbnail.fromUrl(member.getEffectiveAvatarUrl()),
                 TextDisplay.ofFormat("""
                         ## %s
-                        By %s
+                        By %s (%s)
                         """,
-                    title, member.getAsMention()
+                    title, member.getAsMention(), member.getEffectiveName()
                 )
             ),
             Separator.createDivider(Separator.Spacing.SMALL)
@@ -52,7 +52,9 @@ public class FanartSubmissionMessage extends EddieMessage<FanartComponent> {
 
         components.add(MediaGallery.of(
             attachments.stream().map(attachment ->
-                MediaGalleryItem.fromUrl(attachment.getProxy().getUrl())
+                MediaGalleryItem.fromFile(
+                    attachment.getProxy().downloadAsFileUpload(attachment.getFileName())
+                )
             ).toList()
         ));
         components.add(Separator.createDivider(Separator.Spacing.SMALL));

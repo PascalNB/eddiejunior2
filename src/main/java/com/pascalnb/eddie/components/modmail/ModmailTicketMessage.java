@@ -56,7 +56,9 @@ public class ModmailTicketMessage extends EddieMessage<ModmailComponent> {
         if (!attachments.isEmpty()) {
             components.add(MediaGallery.of(
                 attachments.stream().map(attachment ->
-                    MediaGalleryItem.fromUrl(attachment.getProxy().getUrl())
+                    MediaGalleryItem.fromFile(
+                        attachment.getProxy().downloadAsFileUpload(attachment.getFileName())
+                    )
                 ).toList()
             ));
             components.add(Separator.createDivider(Separator.Spacing.SMALL));
